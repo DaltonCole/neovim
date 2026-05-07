@@ -4,17 +4,18 @@ services:
     build:
       context: .
       args:
-        UID: ${UID}
-        GID: ${GID}
-        LOCAL_UNAME: ${LOCAL_UNAME}
+        UID: ${UID:-1000}
+        GID: ${GID:-1000}
+        LOCAL_UNAME: ${LOCAL_UNAME:-docker}
     tty: true
     stdin_open: true
     command: ["sleep infinity"]
     restart: 'unless-stopped'
     volumes:
-      - undo-dir:/home/docker/.config/nvim/undodir
+      - undodir:/home/docker/.config/nvim/undodir
       - /:/system # Mount the whole local system into the container
       - ./nvim/init.vim:/home/docker/.config/nvim/init.vim
+      - ./nvim/coc-settings.json:/home/docker/.config/nvim/coc-settings.json
 
 volumes:
-  undo-dir:
+  undodir:

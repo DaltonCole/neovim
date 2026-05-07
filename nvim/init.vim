@@ -48,11 +48,7 @@ Plug 'klen/python-mode'
 " Docs: https://github.com/neoclide/coc.nvim/wiki/Using-coc-extensions
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 
-" --- LSP (LanguageClient - used for Rust) ---
-Plug 'autozimu/LanguageClient-neovim', {
-    \ 'branch': 'next',
-    \ 'do': 'bash install.sh',
-    \ }
+" --- Fuzzy finder (used by CtrlP / Telescope) ---
 Plug 'junegunn/fzf'
 
 " --- Rust ---
@@ -250,13 +246,6 @@ nnoremap <silent><nowait> ck :<C-u>CocPrev<CR>
 nnoremap <silent><nowait> cp :<C-u>CocListResume<CR>
 
 set hidden  " Required for operations modifying multiple buffers
-
-" --- LanguageClient (Rust only; CoC handles everything else) ---
-" NOTE: Dockerfile LSP intentionally omitted — coc-docker handles it instead.
-let g:LanguageClient_serverCommands = {
-\ 'rust': ['rust-analyzer'],
-\ }
-let g:LanguageClient_autoStart = 0  " Don't warn about unconfigured filetypes
 
 " --- Rust ---
 let g:rustfmt_autosave = 1
@@ -507,7 +496,7 @@ set whichwrap+=<,>,h,l,[,]
 set autoread
 au FocusGained,BufEnter * checktime
 set nofoldenable
-set pastetoggle=<F2>
+map <leader>pp :setlocal paste!<cr>
 
 " --- Spell Check ---
 set spelllang=en
