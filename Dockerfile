@@ -5,6 +5,7 @@ FROM ubuntu:26.04
 RUN apt-get -y update && \
     apt-get -y upgrade && \
     apt-get install -y ca-certificates \
+                       nvim \
                        clang-format \
                        exuberant-ctags \
                        python3 \
@@ -30,31 +31,20 @@ ARG GID=1000
 RUN groupadd -g $GID -o $UNAME
 RUN useradd -m -u $UID -g $GID -o -s /bin/bash $UNAME
 
-# Give user sudo access TODO - Remove
-#RUN apt-get install -y sudo
-#RUN usermod -aG sudo $UNAME
-#RUN echo "$UNAME ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
-
 USER $UNAME
 ENV HOME=/home/${UNAME}
 
 # --- Plugins --- #
 # Install Plug
 RUN curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-# Copy plugins config file
-COPY --chown=${UID}:${GID} nvim/plugins.vim ${HOME}/.config/nvim/init.vim
+# Copy init.vim for headless plugin install
+COPY --chown=${UID}:${GID} nvim/init.vim ${HOME}/.config/nvim/init.vim
 # Install plugins
 RUN nvim --headless +PlugInstall +qall
 RUN nvim --headless +'CocInstall -sync coc-yank coc-html coc-highlight coc-git coc-fzf-preview coc-docker coc-clang-format-style-options coc-yaml coc-tsserver coc-sh coc-rust-analyzer coc-pyright coc-markdown coc-json coc-htmlhint coc-css coc-cmake coc-clangd' +qall
 RUN nvim --headless +'VimspectorInstall debugpy vscode-cpptools' +qall
-# Plugin setup
-RUN mkdir -p ${HOME}/.config/nvim/other
-# Copy normal config file
-COPY --chown=${UID}:${GID} nvim/configs.vim ${HOME}/.config/nvim/
-RUN cat ${HOME}/.config/nvim/configs.vim >> ${HOME}/.config/nvim/init.vim && rm ${HOME}/.config/nvim/configs.vim
-
-# Copy coc-settings.json file
-COPY --chown=${UID}:${GID} nvim/coc-settings.json ${HOME}/.config/nvim/
+# Remove it — the bind mount will provide the real one at runtime
+RUN rm ${HOME}/.config/nvim/init.vim
 
 # Get local conda environment to work inside of container
 ARG LOCAL_UNAME
@@ -62,8 +52,6 @@ ARG LOCAL_SYSTEM_VOL=system
 USER root
 RUN ln -s /${LOCAL_SYSTEM_VOL}/home/$LOCAL_UNAME /home/$LOCAL_UNAME
 USER $UNAME
-
-RUN mkdir /home/${UNAME}/.config/nvim/undodir
 
 # Use bash as the entrypoint. Will require adding nvim as an argument
 #   This is given to add more flexibility when running the container
