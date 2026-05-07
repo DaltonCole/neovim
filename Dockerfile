@@ -5,7 +5,7 @@ FROM ubuntu:26.04
 RUN apt-get -y update && \
     apt-get -y upgrade && \
     apt-get install -y ca-certificates \
-                       nvim \
+                       neovim \
                        clang-format \
                        exuberant-ctags \
                        python3 \
