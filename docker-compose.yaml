@@ -1,0 +1,20 @@
+services:
+  neovim:
+    image: neovim:latest
+    build:
+      context: .
+      args:
+        UID: ${UID}
+        GID: ${GID}
+        LOCAL_UNAME: ${LOCAL_UNAME}
+    tty: true
+    stdin_open: true
+    command: ["sleep infinity"]
+    restart: 'unless-stopped'
+    volumes:
+      - undo-dir:/home/docker/.config/nvim/undodir
+      - /:/system # Mount the whole local system into the container
+      - ./nvim/init.vim:/home/docker/.config/nvim/init.vim
+
+volumes:
+  undo-dir:
