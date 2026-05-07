@@ -4,21 +4,15 @@ This builds a docker container for the use of neovim + plugins. It is assumed th
 
 ## Getting started
 
-* To build: `docker build -t neovim --build-arg UID=$(id -u) --build-arg GID=$(id -g) --build-arg LOCAL_UNAME=$(whoami) .`
-    * This will create a docker container with the `neovim` tag
+* To build: `make build`
 
-* To run:
-    *  `docker run --rm -v /:/system -it neovim nvim /system/<FILE>`
-    * See the .bashrc section for an easier way to run
+* To run: `docker compose up -d`
 
 ## .bashrc
 
 * It is recommended to add the following to your `.bashrc` file:
 
 ```
-# Neovim
-NEOVIM_IMAGE="neovim"
-NEOVIM_VOL="/system"
 # Docker alias
 neovim_start_container() {
     VOL=/system
