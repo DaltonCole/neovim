@@ -1,20 +1,26 @@
 FROM ubuntu:26.04
 
-RUN apt-get update && \
-    apt-get install -y ca-certificates \
-                       clang-format \
-                       exuberant-ctags && \
-    update-ca-certificates && apt-get clean && rm -rf /var/lib/apt/lists/*
-
-
 # --- Package Installation --- #
 # Update packages
-RUN apt-get -y update && apt-get -y upgrade
-# Install neovim and dependencies
-RUN curl -sL install-node.vercel.app/lts | bash # nodejs - coc requirement
-RUN apt-get install -y python3 python3-neovim python3-pip git-all nodejs npm curl clangd
+RUN apt-get -y update && \
+    apt-get -y upgrade && \
+    apt-get install -y ca-certificates \
+                       clang-format \
+                       exuberant-ctags \
+                       python3 \
+                       python3-neovim \
+                       python3-pip \
+                       git-all \
+                       nodejs \
+                       npm \
+                       curl \
+                       clangd && \
+    update-ca-certificates && apt-get clean && rm -rf /var/lib/apt/lists/*
 # Removed ccls, might need to do sudo snap install ccls --classic
-#RUN pip install --no-cache-dir --break-system-packages --upgrade pip
+
+
+# Install neovim and dependencies
+#RUN curl -sL install-node.vercel.app/lts | bash # nodejs - coc requirement
 RUN pip install --no-cache-dir --break-system-packages setuptools
 
 # --- Add a user --- #
@@ -57,7 +63,7 @@ USER root
 RUN ln -s /${LOCAL_SYSTEM_VOL}/home/$LOCAL_UNAME /home/$LOCAL_UNAME
 USER $UNAME
 
-RUN mkdir /home/${UNAME}/.config/nvim/undo-dir
+RUN mkdir /home/${UNAME}/.config/nvim/undodir
 
 # Use bash as the entrypoint. Will require adding nvim as an argument
 #   This is given to add more flexibility when running the container
