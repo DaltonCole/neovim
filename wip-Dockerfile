@@ -1,0 +1,83 @@
+FROM ubuntu:26.04 AS builder
+
+# --- Install only what's needed to build/install plugins ---
+RUN apt-get -y update && apt-get -y upgrade && \
+    apt-get install -y ca-certificates \
+                       neovim \
+                       python3 \
+                       python3-neovim \
+                       python3-pip \
+                       nodejs \
+                       npm \
+                       curl \
+                       git && \
+    update-ca-certificates && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+RUN pip install --no-cache-dir --break-system-packages setuptools
+
+# --- Add user ---
+ARG UNAME=docker
+ARG UID=1000
+ARG GID=1000
+RUN groupadd -g $GID -o $UNAME && \
+    useradd -m -u $UID -g $GID -o -s /bin/bash $UNAME
+
+USER $UNAME
+ENV HOME=/home/${UNAME}
+
+# --- Install vim-plug ---
+RUN curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim \
+    --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+
+# --- Install plugins ---
+COPY --chown=${UID}:${GID} nvim/init.vim ${HOME}/.config/nvim/init.vim
+RUN nvim --headless +PlugInstall +qall && \
+    nvim --headless +'CocInstall -sync coc-yank coc-html coc-highlight coc-git coc-fzf-preview coc-docker coc-clang-format-style-options coc-yaml coc-tsserver coc-sh coc-rust-analyzer coc-pyright coc-markdown coc-json coc-htmlhint coc-css coc-cmake coc-clangd' +qall && \
+    nvim --headless +'VimspectorInstall debugpy vscode-cpptools' +qall && \
+    rm ${HOME}/.config/nvim/init.vim && \
+    mkdir -p ${HOME}/.config/nvim/mru ${HOME}/.config/nvim/undodir
+
+
+# =============================================================================
+FROM ubuntu:26.04
+
+# --- Install runtime packages ---
+RUN apt-get -y update && apt-get -y upgrade && \
+    apt-get install -y ca-certificates \
+                       neovim \
+                       clang-format \
+                       exuberant-ctags \
+                       python3 \
+                       python3-neovim \
+                       python3-pip \
+                       git-all \
+                       nodejs \
+                       npm \
+                       curl \
+                       clangd && \
+    update-ca-certificates && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+RUN pip install --no-cache-dir --break-system-packages setuptools
+
+# --- Add user ---
+ARG UNAME=docker
+ARG UID=1000
+ARG GID=1000
+RUN groupadd -g $GID -o $UNAME && \
+    useradd -m -u $UID -g $GID -o -s /bin/bash $UNAME
+
+# --- Copy plugin artifacts from builder ---
+COPY --from=builder --chown=${UID}:${GID} /home/${UNAME}/.local  /home/${UNAME}/.local
+COPY --from=builder --chown=${UID}:${GID} /home/${UNAME}/.config /home/${UNAME}/.config
+COPY --from=builder --chown=${UID}:${GID} /home/${UNAME}/.nvim   /home/${UNAME}/.nvim
+
+# --- Conda symlink for host user environment ---
+ARG LOCAL_UNAME
+ARG LOCAL_SYSTEM_VOL=system
+USER root
+RUN ln -s /${LOCAL_SYSTEM_VOL}/home/$LOCAL_UNAME /home/$LOCAL_UNAME
+USER $UNAME
+
+ENV HOME=/home/${UNAME}
+
+ENTRYPOINT [ "/bin/bash", "-l", "-c" ]
