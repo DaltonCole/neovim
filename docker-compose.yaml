@@ -3,6 +3,7 @@ services:
     image: neovim:latest
     build:
       context: .
+      dockerfile: wip-Dockerfile
       args:
         UID: ${UID:-1000}
         GID: ${GID:-1000}
