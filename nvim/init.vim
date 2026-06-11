@@ -250,17 +250,6 @@ set hidden  " Required for operations modifying multiple buffers
 " --- Rust ---
 let g:rustfmt_autosave = 1
 
-" --- ALE Linter ---
-let g:ale_linters = {
-\    'rust':       ['analyzer'],
-\    'javascript': ['eslint'],
-\    'python':     ['flake8'],
-\    'go':         ['go', 'golint', 'errcheck']
-\}
-nmap <silent> <leader>a <Plug>(ale_next_wrap)
-let g:ale_lint_on_text_changed = "normal"
-let g:ale_lint_delay = 5
-
 " --- MRU (Most Recently Used) ---
 let MRU_File = '~/.config/nvim/mru/vim_mru_files'
 let MRU_Max_Entries = 400
