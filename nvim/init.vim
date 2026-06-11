@@ -262,7 +262,7 @@ let g:ale_lint_on_text_changed = "normal"
 let g:ale_lint_delay = 5
 
 " --- MRU (Most Recently Used) ---
-let MRU_File = '~/.config/nvim/other/vim_mru_files'
+let MRU_File = '~/.config/nvim/mru/vim_mru_files'
 let MRU_Max_Entries = 400
 map <leader>f :MRU<CR>
 

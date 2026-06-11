@@ -13,9 +13,11 @@ services:
     restart: 'unless-stopped'
     volumes:
       - undodir:/home/docker/.config/nvim/undodir
+      - mrudir:/home/docker/.config/nvim/mru
       - /:/system # Mount the whole local system into the container
       - ./nvim/init.vim:/home/docker/.config/nvim/init.vim
       - ./nvim/coc-settings.json:/home/docker/.config/nvim/coc-settings.json
 
 volumes:
   undodir:
+  mrudir:
