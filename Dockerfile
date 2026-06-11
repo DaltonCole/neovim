@@ -45,7 +45,7 @@ RUN nvim --headless +'CocInstall -sync coc-yank coc-html coc-highlight coc-git c
 RUN nvim --headless +'VimspectorInstall debugpy vscode-cpptools' +qall
 # Remove it — the bind mount will provide the real one at runtime
 RUN rm ${HOME}/.config/nvim/init.vim
-RUN mkdir -p ${HOME}/.config/nvim/mru
+RUN mkdir -p ${HOME}/.config/nvim/mru ${HOME}/.config/nvim/undodir
 
 # Get local conda environment to work inside of container
 ARG LOCAL_UNAME
