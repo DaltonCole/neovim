@@ -527,7 +527,8 @@ map <space>   /
 map <C-space> ?
 
 " --- Movement ---
-map 0 ^   " 0 goes to first non-blank character
+" 0 goes to first non-blank character
+map 0 ^
 au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
 
 " --- Editing ---
