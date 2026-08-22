@@ -11,13 +11,14 @@ RUN apt-get -y update && \
                        python3 \
                        python3-neovim \
                        python3-pip \
-                       git-all \
+                       git \
                        nodejs \
                        npm \
-                       curl \
-                       clangd && \
+                       curl && \
     update-ca-certificates && apt-get clean && rm -rf /var/lib/apt/lists/*
 # Removed ccls, might need to do sudo snap install ccls --classic
+# git-all -> git: fugitive/coc-git/gutentags only need plain git, not git-svn/git-email/etc.
+# clangd omitted: coc-clangd downloads its own matching clangd binary on first use (container has internet)
 
 
 # Install neovim and dependencies

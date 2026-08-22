@@ -73,8 +73,7 @@ Plug 'nvim-lua/plenary.nvim'
 Plug 'nvim-telescope/telescope.nvim', { 'tag': '0.1.6' }
 
 " --- Tags ---
-" universal-ctags: ctrl-] jump to def, ctrl-t jump back, :ts list tags
-Plug 'universal-ctags/ctags'
+" ctags (apt package, see Dockerfile): ctrl-] jump to def, ctrl-t jump back, :ts list tags
 Plug 'ludovicchabant/vim-gutentags'  " Auto create/update ctags
 Plug 'preservim/tagbar'              " <leader>tt  Sidebar tag viewer
 
