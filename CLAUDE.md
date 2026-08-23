@@ -12,6 +12,8 @@ A Dockerized Neovim environment. The container runs persistently (`sleep infinit
 make build   # Build the Docker image (passes UID/GID/LOCAL_UNAME automatically)
 make up      # Start the container in detached mode
 make down    # Stop the container
+make test    # Run the backwards-compatibility test suite against Dockerfile
+make test-wip # Run the same suite against wip-Dockerfile
 ```
 
 The image is tagged `neovim:latest`. The container is named `neovim-neovim` (service name from `docker-compose.yaml`).
@@ -26,6 +28,7 @@ The image is tagged `neovim:latest`. The container is named `neovim-neovim` (ser
 | `nvim/init.vim` | Full Neovim config — plugins, CoC LSP, Vimspector debugger, vim-ai, keymaps |
 | `nvim/coc-settings.json` | CoC LSP config; currently wires up `ccls` for C/C++ |
 | `vimspector-examples/python/.vimspector.json` | Template `.vimspector.json` for Python debug sessions |
+| `tests/` | [container-structure-test](https://github.com/GoogleContainerTools/container-structure-test)-based backwards-compatibility suite for the built image (binaries, plugins, CoC extensions, user/mount setup). `tests/test-image.sh [Dockerfile]` builds the given Dockerfile and checks it; `tests/cst/base.yaml` holds Dockerfile-agnostic checks, `tests/generate-cst-config.sh` generates the plugin/CoC/symlink checks that depend on the specific Dockerfile or host user. Run via `make test` / `make test-wip`. |
 
 ## Key Design Points
 
