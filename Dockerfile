@@ -42,8 +42,19 @@ RUN curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim
 COPY --chown=${UID}:${GID} nvim/init.vim ${HOME}/.config/nvim/init.vim
 # Install plugins
 RUN nvim --headless +PlugInstall +qall
-RUN nvim --headless +'CocInstall -sync coc-yank coc-html coc-highlight coc-git coc-fzf-preview coc-docker coc-clang-format-style-options coc-yaml coc-tsserver coc-sh coc-rust-analyzer coc-pyright coc-markdown coc-json coc-htmlhint coc-css coc-cmake coc-clangd' +qall
-RUN nvim --headless +'VimspectorInstall debugpy vscode-cpptools' +qall
+# coc-markdown was never a published extension (404 from the npm registry);
+# coc-markdownlint is the extension the coc.nvim wiki actually lists for
+# Markdown support, maintained by the same author as several extensions here.
+RUN nvim --headless +'CocInstall -sync coc-yank coc-html coc-highlight coc-git coc-fzf-preview coc-docker coc-clang-format-style-options coc-yaml coc-tsserver coc-sh coc-rust-analyzer coc-pyright coc-markdownlint coc-json coc-htmlhint coc-css coc-cmake coc-clangd' +qall
+# `:VimspectorInstall` just runs install_gadget.py as a backgrounded nvim job,
+# so the immediately-following +qall used to kill it before the (sizeable)
+# download/build finished and no adapter ever landed in the image. Run the
+# same script directly instead, so the RUN step blocks until it's actually
+# done. --enable-cpp pulls in both vscode-cpptools and CodeLLDB (vimspector's
+# own recommended C/C++ pairing, see its README), --enable-python pulls in
+# debugpy.
+RUN cd ${HOME}/.nvim/plugged/vimspector && \
+    ./install_gadget.py --enable-python --enable-c --enable-cpp
 # Remove it — the bind mount will provide the real one at runtime
 RUN rm ${HOME}/.config/nvim/init.vim
 RUN mkdir -p ${HOME}/.config/nvim/mru ${HOME}/.config/nvim/undodir
