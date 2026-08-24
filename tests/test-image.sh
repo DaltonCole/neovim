@@ -6,8 +6,11 @@
 # Builds the given Dockerfile (default: Dockerfile) and checks that the
 # resulting image still provides everything the current production image
 # provides: core tooling, the plugin/CoC/Vimspector install baked in at
-# build time, and the user/mount setup the rest of the repo
-# (docker-compose.yaml, CLAUDE.md) assumes.
+# build time, the user/mount setup the rest of the repo (docker-compose.yaml,
+# CLAUDE.md) assumes, and - with the real init.vim/coc-settings.json
+# bind-mounted in the same way docker-compose.yaml does at runtime - that
+# every plugin's keybindings actually load and work, not just that their
+# plugin directories exist on disk.
 #
 # Run this against wip-Dockerfile (or any future variant) before pointing
 # docker-compose.yaml at it, to check it for parity with the known-good
@@ -41,9 +44,10 @@ if [[ ! -x "$CST_BIN" ]]; then
 fi
 
 GENERATED="$(mktemp --suffix=.yaml)"
+FUNCTIONAL="$(mktemp --suffix=.yaml)"
 cleanup() {
     docker rmi -f "$IMAGE_TAG" >/dev/null 2>&1 || true
-    rm -f "$GENERATED"
+    rm -f "$GENERATED" "$FUNCTIONAL"
 }
 trap cleanup EXIT
 
@@ -62,7 +66,9 @@ fi
 rm -f "$BUILD_LOG"
 
 ./tests/generate-cst-config.sh "$DOCKERFILE" "$LOCAL_UNAME" > "$GENERATED"
+./tests/generate-functional-config.sh > "$FUNCTIONAL"
 
 "$CST_BIN" test --image "$IMAGE_TAG" \
     --config tests/cst/base.yaml \
-    --config "$GENERATED"
+    --config "$GENERATED" \
+    --config "$FUNCTIONAL"
