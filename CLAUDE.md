@@ -28,7 +28,7 @@ The image is tagged `neovim:latest`. The container is named `neovim-neovim` (ser
 | `nvim/init.vim` | Full Neovim config — plugins, CoC LSP, Vimspector debugger, vim-ai, keymaps |
 | `nvim/coc-settings.json` | CoC LSP config; currently wires up `ccls` for C/C++ |
 | `vimspector-examples/python/.vimspector.json` | Template `.vimspector.json` for Python debug sessions |
-| `tests/` | [container-structure-test](https://github.com/GoogleContainerTools/container-structure-test)-based backwards-compatibility suite for the built image (binaries, plugins, CoC extensions, user/mount setup). `tests/test-image.sh [Dockerfile]` builds the given Dockerfile and checks it; `tests/cst/base.yaml` holds Dockerfile-agnostic checks, `tests/generate-cst-config.sh` generates the plugin/CoC/symlink checks that depend on the specific Dockerfile or host user. Run via `make test` / `make test-wip`. |
+| `tests/` | [container-structure-test](https://github.com/GoogleContainerTools/container-structure-test)-based test suite for the built image. `tests/test-image.sh [Dockerfile]` builds the given Dockerfile and checks it; `tests/cst/base.yaml` holds Dockerfile-agnostic structural checks (binaries, user/mount setup), `tests/generate-cst-config.sh` generates the plugin/CoC/symlink checks that depend on the specific Dockerfile or host user, and `tests/generate-functional-config.sh` bind-mounts the real `nvim/init.vim`/`coc-settings.json` in (same paths `docker-compose.yaml` uses at runtime) and checks that plugin keybindings actually load and work, not just that their plugin directories exist on disk. Run via `make test` / `make test-wip`. |
 
 ## Key Design Points
 
