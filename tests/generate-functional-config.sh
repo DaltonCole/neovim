@@ -58,6 +58,26 @@ check() {
     printf '    exitCode: 0\n'
 }
 
+echo "  # --- init.vim loads cleanly: no errors (or any other message) at startup."
+check "init.vim loads with no startup errors or messages" \
+    "if !empty(execute('messages')) | cquit 1 | endif"
+
+echo
+echo "  # --- CoC's node side: the service starts and every extension installed"
+echo "  # under ~/.config/coc/extensions registers with it. (The <Plug> checks"
+echo "  # below only prove coc.nvim's vimscript side loaded.) -c commands run"
+echo "  # before VimEnter, which is when coc.nvim starts its service, so fire"
+echo "  # VimEnter first; :sleep keeps handling the service's messages meanwhile."
+check "coc.nvim service starts and every installed extension registers" \
+    "doautocmd VimEnter" \
+    "let g:_t = 0" \
+    "while !get(g:, 'coc_service_initialized', 0) && g:_t < 300 | sleep 100m | let g:_t += 1 | endwhile" \
+    "let g:_n = len(glob('~/.config/coc/extensions/node_modules/*', 0, 1))" \
+    "let g:_t = 0" \
+    "while get(g:, 'coc_service_initialized', 0) && len(CocAction('extensionStats')) < g:_n && g:_t < 100 | sleep 100m | let g:_t += 1 | endwhile" \
+    "if !get(g:, 'coc_service_initialized', 0) || g:_n == 0 || len(filter(CocAction('extensionStats'), {_, v -> v.state !=# 'disabled' && v.state !=# 'unknown'})) < g:_n | cquit 1 | endif"
+
+echo
 echo "  # --- <C-s> conflict: CoC's coc-range-select (nmap/xmap <C-s>, coc.nvim"
 echo "  # config section) is shadowed by CtrlSF's later nmap/xmap <C-s> - last"
 echo "  # mapping wins. Assert the actual effective binding, not the shadowed one."
