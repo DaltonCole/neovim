@@ -30,17 +30,46 @@ commandTests:
     command: "which"
     args: ["node"]
     exitCode: 0
-  - name: "npm present"
-    command: "which"
-    args: ["npm"]
+  # npm comes from the npm registry (see Dockerfile), symlinked into
+  # /usr/local/bin, so run it rather than just finding it on PATH. coc.nvim
+  # runs it for :CocInstall/:CocUpdate of extensions with dependencies, and
+  # coc-tsserver for Automatic Type Acquisition.
+  - name: "npm runs"
+    command: "npm"
+    args: ["--version"]
     exitCode: 0
   - name: "curl present"
     command: "which"
     args: ["curl"]
     exitCode: 0
+  - name: "less present (git's default pager)"
+    command: "which"
+    args: ["less"]
+    exitCode: 0
+  # nvim's own commands shell out to these: :make, :diffpatch, the bundled
+  # gzip plugin for .bz2/.xz files, and :help hex-editing.
+  - name: "tools nvim's built-in commands run (make, patch, bzip2, xz, xxd)"
+    command: "bash"
+    args: ["-c", "for b in make patch bzip2 xz xxd; do command -v $b >/dev/null || { echo \"missing: $b\"; exit 1; }; done"]
+    exitCode: 0
+  # The clangd that coc-clangd downloads uses the system's C and C++
+  # standard headers; without them every #include <stdio.h> / <vector>
+  # is an error. The image has the headers but no compiler.
+  - name: "C and C++ standard headers present (for coc-clangd's clangd)"
+    command: "bash"
+    args: ["-c", "test -f /usr/include/stdio.h && ls /usr/include/c++/*/vector >/dev/null"]
+    exitCode: 0
   - name: "nvim has python3 provider (required by python-mode)"
     command: "nvim"
     args: ["--headless", "-c", "if !has('python3') | cquit 1 | endif", "-c", "q"]
+    exitCode: 0
+  # mru/undodir are named-volume mount points, which take the image
+  # directory's ownership when first created; ~/.config/nvim holds the
+  # bind-mounted config and the zg spellfile; ~/.config/coc holds the
+  # language servers coc-clangd/coc-rust-analyzer download on first use.
+  - name: "user owns and can write its nvim/coc directories"
+    command: "bash"
+    args: ["-c", "for d in ~/.config/nvim ~/.config/nvim/mru ~/.config/nvim/undodir ~/.config/coc ~/.nvim; do test -O $d -a -w $d || { echo \"not owned/writable: $d\"; exit 1; }; done"]
     exitCode: 0
 
 fileExistenceTests:

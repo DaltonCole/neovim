@@ -1,4 +1,4 @@
-.PHONY: build up down test test-wip
+.PHONY: build up down test
 
 # Container engine: docker or podman. Defaults to Docker when a real Docker
 # CLI is installed, otherwise Podman. podman-docker's `docker` shim reports
@@ -43,6 +43,3 @@ down:
 # always runs under Docker regardless of NEOVIM_ENGINE.
 test:
 	./tests/test-image.sh
-
-test-wip:
-	./tests/test-image.sh wip-Dockerfile
