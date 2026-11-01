@@ -12,9 +12,8 @@
 # every plugin's keybindings actually load and work, not just that their
 # plugin directories exist on disk.
 #
-# Run this against wip-Dockerfile (or any future variant) before pointing
-# docker-compose.yaml at it, to check it for parity with the known-good
-# Dockerfile.
+# Pass a different Dockerfile to check a variant for parity with the
+# known-good Dockerfile before pointing docker-compose.yaml at it.
 #
 # Usage: tests/test-image.sh [Dockerfile]
 
