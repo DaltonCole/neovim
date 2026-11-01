@@ -47,7 +47,13 @@ ENV HOME=/home/${UNAME}
 # for the install; the real one is bind-mounted at runtime.
 RUN curl -fLo "${HOME}/.local/share/nvim/site/autoload/plug.vim" --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 COPY --chown=${UID}:${GID} nvim/init.vim ${HOME}/.config/nvim/init.vim
-RUN nvim --headless +PlugInstall +qall
+# PlugInstall exits 0 even when a clone fails (vim-plug reports it only in
+# its own window), so retry the missing plugins once, then fail the build
+# if any plugin directory is still missing.
+RUN nvim --headless +PlugInstall +qall; \
+    nvim --headless -c 'if !empty(filter(values(g:plugs), "!isdirectory(v:val.dir)")) | PlugInstall --sync | endif' -c 'qa!' && \
+    nvim --headless -c 'let m = map(filter(values(g:plugs), "!isdirectory(v:val.dir)"), "v:val.dir")' \
+                    -c 'if !empty(m) | call writefile(["Plugins failed to install:"] + m, "/dev/stderr") | cquit 1 | endif' -c 'qa!'
 # coc-markdown was never a published extension (404 from the npm registry);
 # coc-markdownlint is the extension the coc.nvim wiki actually lists for
 # Markdown support, maintained by the same author as several extensions here.
