@@ -6,7 +6,7 @@
     2) be employing a multi-stage build process
         * wip-Dockerfile has known issues (still WIP) - docker-compose.yaml points back at the stable Dockerfile for now
 * Two bugs found while inventorying init.vim's keybindings for the functional test suite (not fixed - logged only):
-    * `<leader>r` in visual mode calls `VisualSelection('replace', '')`, which calls `CmdLine(...)` - a function that is never defined anywhere in this repo. Guaranteed `E117: Unknown function: CmdLine` if triggered. (Normal-mode `<leader>r` is unaffected - that's vim-ai's `:AIRedo`, a different mode, no conflict.)
+    * `<leader>r` in visual mode calls `VisualSelection('replace', '')`, which calls `CmdLine(...)` - a function that is never defined anywhere in this repo. Guaranteed `E117: Unknown function: CmdLine` if triggered. (Normal-mode `<leader>r` is not mapped.)
     * `g:javascript_plugin_jsdoc` / `g:javascript_plugin_flow` are configured in init.vim but no `vim-javascript` plugin is ever declared in the `Plug` list - dead/orphaned config.
 
 ## Completed Tasks

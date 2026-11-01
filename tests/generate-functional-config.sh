@@ -157,29 +157,6 @@ for plug in VimspectorContinue VimspectorToggleBreakpoint VimspectorRunToCursor 
         "if empty(maparg('<Plug>$plug', 'n')) | cquit 1 | endif"
 done
 
-echo
-echo "  # --- vim-ai: command-existence only - these fire a real HTTPS call to"
-echo "  # REDACTED and must never actually be triggered in a test."
-for cmd in AI AIChat AIRedo; do
-    check "vim-ai provides :$cmd" \
-        "if !exists(':$cmd') | cquit 1 | endif"
-done
-
-echo
-echo "  # --- vim-ai off switch: NEOVIM_VIM_AI=0 (set via .env on machines that"
-echo "  # shouldn't use the endpoint) must leave the plugin unloaded, none of"
-echo "  # init.vim's vim-ai mappings set, and no errors logged while loading"
-echo "  # init.vim (e.g. from the skipped heredoc). Normal-mode ,a then falls"
-echo "  # back to emmet's own mapping, so check for :AI rather than emptiness."
-echo "  # v:errmsg isn't usable here: a plugin's silent! call leaves E328 in it"
-echo "  # either way, so check the logged messages instead."
-echo "  # Set via env(1), not envVars: container-structure-test drops per-test"
-echo "  # envVars when containerRunOptions (the bind mounts above) is set."
-printf '  - name: "%s"\n' "NEOVIM_VIM_AI=0 leaves vim-ai unloaded and unmapped"
-printf '    command: "env"\n'
-printf '    args: ["NEOVIM_VIM_AI=0", "nvim", "--headless", "-c", "%s", "-c", "qa!"]\n' \
-    "if exists(':AI') || exists(':AIChat') || exists(':AIRedo') || maparg(',a', 'n') =~# ':AI' || maparg(',a', 'x') =~# ':AI' || maparg(',c', 'n') =~# ':AI' || maparg(',r', 'n') =~# ':AI' || execute('messages') =~# 'E[0-9][0-9]*:' | cquit 1 | endif"
-printf '    exitCode: 0\n'
 
 echo
 echo "  # --- <leader>s conflict: bound twice (plain 'map' -> window split,"

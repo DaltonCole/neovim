@@ -98,18 +98,6 @@ Plug 'preservim/vim-markdown'
 " <leader>di inspect (normal + visual)
 Plug 'puremourning/vimspector'
 
-" --- AI ---
-" <leader>a  AI complete (normal/visual)
-" <leader>c  AI chat    (normal/visual)
-" <leader>r  AI redo
-" Skipped when NEOVIM_VIM_AI=0 (set via the repo's .env; see
-" docker-compose.yaml). The plugin is still installed in the image, but
-" isn't loaded, configured or mapped.
-let g:use_vim_ai = $NEOVIM_VIM_AI !=# '0'
-if g:use_vim_ai
-  Plug 'madox2/vim-ai'
-endif
-
 call plug#end()
 
 " Auto-install any missing plugins on startup
@@ -375,41 +363,6 @@ nmap <Leader>dn <Plug>VimspectorStepInto
 nmap <Leader>de <Plug>VimspectorStepOut
 nmap <Leader>di <Plug>VimspectorBalloonEval
 xmap <Leader>di <Plug>VimspectorBalloonEval
-
-" --- vim-ai ---
-" Only when enabled; see g:use_vim_ai in the plugin list above.
-if g:use_vim_ai
-let s:initial_complete_prompt =<< trim END
->>> system
-
-You are a general assistant.
-Answer shortly, consisely and only what you are asked.
-Do not provide any explanantion or comments if not requested.
-If you answer in a code, do not wrap it in markdown code block.
-END
-
-let chat_engine_config = {
-\  "engine": "chat",
-\  "options": {
-\    "model": "meta-llama/Llama-3.3-70B-Instruct",
-\    "endpoint_url": "REDACTED",
-\    "max_tokens": 0,
-\    "temperature": 0.1,
-\    "request_timeout": 20,
-\    "selection_boundary": "",
-\    "initial_prompt": s:initial_complete_prompt,
-\  },
-\}
-
-let g:vim_ai_complete = chat_engine_config
-let g:vim_ai_edit     = chat_engine_config
-
-nnoremap <leader>a :AI<CR>
-xnoremap <leader>a :AI<CR>
-xnoremap <leader>c :AIChat<CR>
-nnoremap <leader>c :AIChat<CR>
-nnoremap <leader>r :AIRedo<CR>
-endif
 
 
 " =============================================================================

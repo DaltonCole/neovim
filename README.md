@@ -12,12 +12,6 @@ This builds a container for the use of neovim + plugins, run under Docker or roo
 
 Under Podman, the Makefile runs `podman-compose` with `compose.podman.yaml` layered on top of `docker-compose.yaml`. That runs the container with `userns_mode: keep-id`, so files you save through `/system` stay owned by you. It needs `podman`, `podman-compose`, and an `/etc/subuid`/`/etc/subgid` range for your user (Ubuntu creates one for normal users).
 
-## Per-machine settings
-
-`docker-compose.yaml` reads an optional, gitignored `.env` file next to it:
-
-* `NEOVIM_VIM_AI=0` loads nvim without the vim-ai plugin (its config and `<leader>a`/`<leader>c`/`<leader>r` mappings are skipped too). Unset means enabled.
-
 ## .bashrc
 
 * It is recommended to add the following to your `.bashrc` file (this is the version in [bashrc_vimrc](https://github.com/DaltonCole/bashrc_vimrc)):

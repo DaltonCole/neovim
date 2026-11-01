@@ -1,4 +1,2 @@
 tags
 tests/.bin/
-# Per-machine settings read by docker-compose.yaml (e.g. NEOVIM_VIM_AI=0)
-.env
