@@ -102,7 +102,13 @@ Plug 'puremourning/vimspector'
 " <leader>a  AI complete (normal/visual)
 " <leader>c  AI chat    (normal/visual)
 " <leader>r  AI redo
-Plug 'madox2/vim-ai'
+" Skipped when NEOVIM_VIM_AI=0 (set via the repo's .env; see
+" docker-compose.yaml). The plugin is still installed in the image, but
+" isn't loaded, configured or mapped.
+let g:use_vim_ai = $NEOVIM_VIM_AI !=# '0'
+if g:use_vim_ai
+  Plug 'madox2/vim-ai'
+endif
 
 call plug#end()
 
@@ -371,6 +377,8 @@ nmap <Leader>di <Plug>VimspectorBalloonEval
 xmap <Leader>di <Plug>VimspectorBalloonEval
 
 " --- vim-ai ---
+" Only when enabled; see g:use_vim_ai in the plugin list above.
+if g:use_vim_ai
 let s:initial_complete_prompt =<< trim END
 >>> system
 
@@ -401,6 +409,7 @@ xnoremap <leader>a :AI<CR>
 xnoremap <leader>c :AIChat<CR>
 nnoremap <leader>c :AIChat<CR>
 nnoremap <leader>r :AIRedo<CR>
+endif
 
 
 " =============================================================================

@@ -1,3 +1,10 @@
+# Fixed project name, so the container carries the compose label
+# com.docker.compose.project=neovim no matter which directory this repo is
+# cloned into. The neovim() shell function finds the container by that label.
+# It matches the name Docker already derived from ~/neovim, so existing Docker
+# setups keep the same project.
+name: neovim
+
 services:
   neovim:
     image: neovim:latest
@@ -12,6 +19,11 @@ services:
     stdin_open: true
     command: ["sleep infinity"]
     restart: 'unless-stopped'
+    environment:
+      # 0 turns off the vim-ai plugin (see nvim/init.vim). Set it in a .env
+      # file next to this one, e.g. on machines that shouldn't use the AI
+      # endpoint. Unset means enabled.
+      NEOVIM_VIM_AI: ${NEOVIM_VIM_AI:-1}
     volumes:
       - undodir:/home/docker/.config/nvim/undodir
       - mrudir:/home/docker/.config/nvim/mru

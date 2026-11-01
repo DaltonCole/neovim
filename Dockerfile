@@ -1,4 +1,6 @@
-FROM ubuntu:26.04
+# Fully qualified so Podman doesn't depend on a short-name alias to resolve
+# it. Docker pulls the same image either way.
+FROM docker.io/library/ubuntu:26.04
 
 # --- Package Installation --- #
 # Update packages

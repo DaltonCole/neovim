@@ -1,0 +1,18 @@
+# Podman-only settings, layered on top of docker-compose.yaml by the Makefile
+# when NEOVIM_ENGINE=podman:
+#   podman-compose -f docker-compose.yaml -f compose.podman.yaml
+# Docker rejects keep-id, so these can't live in the base file.
+
+# podman-compose puts services in a pod by default, and a pod can't be
+# combined with a per-container user namespace (userns_mode below).
+x-podman:
+  in_pod: false
+
+services:
+  neovim:
+    # Rootless Podman otherwise maps the container's UID 1000 to an
+    # unprivileged subuid on the host (e.g. 100999). Saving a file through
+    # /system would then fail with "permission denied", or leave it owned by
+    # that subuid. keep-id maps your host UID/GID straight through, matching
+    # the UID/GID the image's user was built with.
+    userns_mode: keep-id
