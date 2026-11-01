@@ -16,7 +16,7 @@
 # that's checked instead/in addition - `nmap gd <Plug>(coc-definition)`
 # succeeds even if CoC never defined that target, so checking `gd` alone
 # only proves init.vim's line ran, not that CoC provided the feature.
-# Where safe/reliable (no network call, no live LSP/debug-adapter session,
+# Where safe/reliable (no network call, no live LSP session,
 # no interactive picker UI), the binding is actually triggered and a real,
 # plugin-agnostic side effect is checked (usually a window-count delta)
 # rather than just "is it mapped".
@@ -147,16 +147,6 @@ check "Fugitive provides :Gvdiffsplit" \
     "if !exists(':Gvdiffsplit') | cquit 1 | endif"
 check "Tabular provides :Tabularize (:Tab alias used by the t mapping)" \
     "if !exists(':Tabularize') | cquit 1 | endif"
-
-echo
-echo "  # --- Vimspector: <Plug> targets only - no live debug adapter session."
-for plug in VimspectorContinue VimspectorToggleBreakpoint VimspectorRunToCursor \
-            VimspectorRestart VimspectorPause VimspectorStop VimspectorStepOver \
-            VimspectorStepInto VimspectorStepOut VimspectorBalloonEval; do
-    check "vimspector provides <Plug>$plug" \
-        "if empty(maparg('<Plug>$plug', 'n')) | cquit 1 | endif"
-done
-
 
 echo
 echo "  # --- <leader>s conflict: bound twice (plain 'map' -> window split,"

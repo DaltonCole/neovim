@@ -18,7 +18,6 @@
 "   zg          : Add word to dictionary
 "   z=          : Spell check
 " --- Leader (,) ---
-"   ,dd         : Start/continue debugger
 " --- File Exploration ---
 "   ,nn         : Open NERDTree file explorer
 "   ,f          : Recently opened files (MRU)
@@ -90,13 +89,6 @@ Plug 'itchyny/lightline.vim'
 " --- Markdown ---
 Plug 'godlygeek/tabular'
 Plug 'preservim/vim-markdown'
-
-" --- Debugger (requires neovim >= 0.8) ---
-" <leader>dd continue, <leader>db breakpoint, <leader>dh run-to-cursor
-" <leader>dr restart, <leader>dp pause, <leader>ds stop
-" <leader>do step-over, <leader>dn step-into, <leader>de step-out
-" <leader>di inspect (normal + visual)
-Plug 'puremourning/vimspector'
 
 call plug#end()
 
@@ -347,22 +339,6 @@ nnoremap <leader>tf <cmd>Telescope find_files<cr>
 nnoremap <leader>tg <cmd>Telescope live_grep<cr>
 nnoremap <leader>tb <cmd>Telescope buffers<cr>
 nnoremap <leader>th <cmd>Telescope help_tags<cr>
-
-" --- Vimspector (Debugger) ---
-let g:vimspector_base_dir      = '/home/docker/.nvim/plugged/vimspector'
-let g:vimspector_sidebar_width = 75
-let g:vimspector_bottombar_height = 5
-nmap <Leader>dd <Plug>VimspectorContinue
-nmap <Leader>db <Plug>VimspectorToggleBreakpoint
-nmap <Leader>dh <Plug>VimspectorRunToCursor
-nmap <Leader>dr <Plug>VimspectorRestart
-nmap <Leader>dp <Plug>VimspectorPause
-nmap <Leader>ds <Plug>VimspectorStop
-nmap <Leader>do <Plug>VimspectorStepOver
-nmap <Leader>dn <Plug>VimspectorStepInto
-nmap <Leader>de <Plug>VimspectorStepOut
-nmap <Leader>di <Plug>VimspectorBalloonEval
-xmap <Leader>di <Plug>VimspectorBalloonEval
 
 
 " =============================================================================
