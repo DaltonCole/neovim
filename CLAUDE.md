@@ -25,14 +25,13 @@ The image is tagged `neovim:latest` (`localhost/neovim:latest` under Podman). Th
 
 | File | Purpose |
 |------|---------|
-| `Dockerfile` | Single-stage build: installs packages, creates user matching host UID/GID, installs vim-plug + CoC extensions + Vimspector adapters headlessly, then removes `init.vim` so the bind mount takes over at runtime |
+| `Dockerfile` | Single-stage build: installs packages, creates user matching host UID/GID, installs vim-plug + CoC extensions headlessly, then removes `init.vim` so the bind mount takes over at runtime |
 | `wip-Dockerfile` | Two-stage build variant (builder + runtime) — WIP, not yet used by `docker-compose.yaml` |
 | `docker-compose.yaml` | Defines the `neovim` service; bind-mounts `nvim/init.vim` and `nvim/coc-settings.json` into the container so changes take effect without a rebuild |
 | `compose.podman.yaml` | Podman-only overrides the Makefile layers on top when `NEOVIM_ENGINE=podman`: `userns_mode: keep-id` and `x-podman: in_pod: false` (see Key Design Points) |
 | `Makefile` | `build`/`up`/`down` via `docker compose` or `podman-compose -f docker-compose.yaml -f compose.podman.yaml`, chosen by `NEOVIM_ENGINE` |
-| `nvim/init.vim` | Full Neovim config — plugins, CoC LSP, Vimspector debugger, keymaps |
+| `nvim/init.vim` | Full Neovim config — plugins, CoC LSP, keymaps |
 | `nvim/coc-settings.json` | CoC LSP config; currently wires up `ccls` for C/C++ |
-| `vimspector-examples/python/.vimspector.json` | Template `.vimspector.json` for Python debug sessions |
 | `tests/` | [container-structure-test](https://github.com/GoogleContainerTools/container-structure-test)-based test suite for the built image. `tests/test-image.sh [Dockerfile]` builds the given Dockerfile and checks it; `tests/cst/base.yaml` holds Dockerfile-agnostic structural checks (binaries, user/mount setup), `tests/generate-cst-config.sh` generates the plugin/CoC/symlink checks that depend on the specific Dockerfile or host user, and `tests/generate-functional-config.sh` bind-mounts the real `nvim/init.vim`/`coc-settings.json` in (same paths `docker-compose.yaml` uses at runtime) and checks that plugin keybindings actually load and work, not just that their plugin directories exist on disk. Run via `make test` / `make test-wip`. |
 
 ## Key Design Points
@@ -49,7 +48,6 @@ The image is tagged `neovim:latest` (`localhost/neovim:latest` under Podman). Th
 ## Plugin Stack (init.vim)
 
 - **Completion/LSP**: CoC (`coc.nvim`) with extensions for C/C++ (`coc-clangd`), Python (`coc-pyright`), Rust (`coc-rust-analyzer`), TypeScript, YAML, JSON, etc.
-- **Debugger**: Vimspector with `debugpy` (Python) and `vscode-cpptools` (C/C++) adapters.
 - **File navigation**: NERDTree, CtrlP, MRU, BufExplorer, CtrlSF, Telescope.
 - **Tags**: `vim-gutentags` (auto ctags) + Tagbar sidebar.
 - **Leader key**: `,`

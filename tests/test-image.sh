@@ -5,7 +5,7 @@
 #
 # Builds the given Dockerfile (default: Dockerfile) and checks that the
 # resulting image still provides everything the current production image
-# provides: core tooling, the plugin/CoC/Vimspector install baked in at
+# provides: core tooling, the plugin/CoC install baked in at
 # build time, the user/mount setup the rest of the repo (docker-compose.yaml,
 # CLAUDE.md) assumes, and - with the real init.vim/coc-settings.json
 # bind-mounted in the same way docker-compose.yaml does at runtime - that

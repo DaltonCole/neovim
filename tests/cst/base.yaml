@@ -38,21 +38,9 @@ commandTests:
     command: "which"
     args: ["curl"]
     exitCode: 0
-  - name: "nvim has python3 provider (required by Vimspector)"
+  - name: "nvim has python3 provider (required by python-mode)"
     command: "nvim"
     args: ["--headless", "-c", "if !has('python3') | cquit 1 | endif", "-c", "q"]
-    exitCode: 0
-  # NOTE: still fails against wip-Dockerfile as of this writing - its
-  # `VimspectorInstall ... +qall` build step quits nvim before the async
-  # gadget download finishes, so no adapters land in the image. Dockerfile
-  # fixed by running install_gadget.py directly instead (synchronous).
-  - name: "vimspector debugpy adapter installed"
-    command: "bash"
-    args: ["-c", "find \"$HOME/.nvim/plugged/vimspector/gadgets\" -iname 'debugpy*' 2>/dev/null | grep -q ."]
-    exitCode: 0
-  - name: "vimspector vscode-cpptools adapter installed"
-    command: "bash"
-    args: ["-c", "find \"$HOME/.nvim/plugged/vimspector/gadgets\" -iname '*cpptools*' 2>/dev/null | grep -q ."]
     exitCode: 0
 
 fileExistenceTests:
