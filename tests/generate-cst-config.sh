@@ -21,6 +21,10 @@ cat <<EOF
     command: "bash"
     args: ["-c", "test -L \"/home/$LOCAL_UNAME\""]
     exitCode: 0
+  - name: "rustup variables point at the host's toolchains (its shims need them)"
+    command: "bash"
+    args: ["-c", "test \"\$RUSTUP_HOME\" = \"/home/$LOCAL_UNAME/.rustup\" -a \"\$CARGO_HOME\" = \"/home/$LOCAL_UNAME/.cargo\""]
+    exitCode: 0
 EOF
 
 echo

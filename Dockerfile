@@ -81,11 +81,12 @@ FROM docker.io/library/ubuntu:26.04
 
 # What nvim and the plugins in init.vim use while you edit:
 #   neovim                       the editor
-#   python3, python3-neovim      nvim's python3 provider (python-mode)
+#   python3, python3-neovim      nvim's python3 provider
 #   nodejs                       runs coc.nvim and its extensions
 #   git, less                    fugitive, gitgutter, coc-git, gutentags;
 #                                less is git's default pager
 #   exuberant-ctags              gutentags, tagbar
+#   ripgrep                      CtrlSF and Telescope's live grep
 #   clang-format                 vim-clang-format
 #   libc6-dev, libstdc++-15-dev  C and C++ standard headers. The clangd that
 #                                coc-clangd downloads needs them to resolve
@@ -122,6 +123,7 @@ RUN apt-get -y update && \
                        patch \
                        python3 \
                        python3-neovim \
+                       ripgrep \
                        xxd \
                        xz-utils && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
@@ -161,6 +163,12 @@ ARG LOCAL_SYSTEM_VOL=system
 USER root
 RUN ln -s /${LOCAL_SYSTEM_VOL}/home/$LOCAL_UNAME /home/$LOCAL_UNAME
 USER $UNAME
+
+# The neovim() shell function puts the host's ~/.cargo/bin on PATH. Those are
+# rustup shims, which look for toolchains in ~/.rustup and $HOME is the
+# container's here, so without these cargo, rustc and rustfmt all refuse to run.
+ENV RUSTUP_HOME=/home/${LOCAL_UNAME}/.rustup \
+    CARGO_HOME=/home/${LOCAL_UNAME}/.cargo
 
 # Use bash as the entrypoint. Will require adding nvim as an argument
 #   This is given to add more flexibility when running the container

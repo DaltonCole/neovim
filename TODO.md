@@ -2,12 +2,10 @@
 
 ## Tasks
 
-* Two bugs found while inventorying init.vim's keybindings for the functional test suite (not fixed - logged only):
-    * `<leader>r` in visual mode calls `VisualSelection('replace', '')`, which calls `CmdLine(...)` - a function that is never defined anywhere in this repo. Guaranteed `E117: Unknown function: CmdLine` if triggered. (Normal-mode `<leader>r` is not mapped.)
-    * `g:javascript_plugin_jsdoc` / `g:javascript_plugin_flow` are configured in init.vim but no `vim-javascript` plugin is ever declared in the `Plug` list - dead/orphaned config.
-
 ## Completed Tasks
 
+* Rust from the host: the image sets `RUSTUP_HOME`/`CARGO_HOME` so the host's rustup shims work in the container, and coc-rust-analyzer's server download is kept in `~/.local/share/coc-rust-analyzer` on the host. Tab and Shift-Tab now cycle CoC's completion menu.
+* Reorganized init.vim by feature and added a `,?` command cheatsheet. Fixed along the way: `<leader>r` calling the undefined `CmdLine()`; `<C-s>` in normal mode overwriting the line (it pointed at a visual-only CtrlSF target); trailing comments that ran as keystrokes on the spell keys and Alt-J/K. Moved CoC symbol search to `cy`, range select to `cv` and normal-mode popup scrolling to `<C-d>`/`<C-u>`, since other plugins owned their old keys. Removed the disabled python-mode and the orphaned `g:javascript_plugin_*` settings. Added `ripgrep` to the image, which CtrlSF and Telescope live grep need.
 * Clean up repository: removed stray generated `tags` file from repo root; fixed docker-compose.yaml pointing at an unfinished experimental Dockerfile instead of the stable one
 * Clean up files: removed dead `Plug 'universal-ctags/ctags'` line from init.vim (it only cloned the source and never built a binary; apt-installed `exuberant-ctags` already provides the `ctags` binary gutentags uses)
 * Minimize the size of the docker container:

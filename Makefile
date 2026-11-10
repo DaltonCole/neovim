@@ -34,6 +34,9 @@ ifeq ($(NEOVIM_ENGINE),podman)
 		$(COMPOSE) down; \
 	fi
 endif
+# docker-compose.yaml bind-mounts this. If it's missing, Docker creates it
+# owned by root and the rust-analyzer download can't write to it.
+	@mkdir -p "$$HOME/.local/share/coc-rust-analyzer"
 	$(USER_ENV) $(COMPOSE) up -d
 
 down:

@@ -78,13 +78,15 @@ check "coc.nvim service starts and every installed extension registers" \
     "if !get(g:, 'coc_service_initialized', 0) || g:_n == 0 || len(filter(CocAction('extensionStats'), {_, v -> v.state !=# 'disabled' && v.state !=# 'unknown'})) < g:_n | cquit 1 | endif"
 
 echo
-echo "  # --- <C-s> conflict: CoC's coc-range-select (nmap/xmap <C-s>, coc.nvim"
-echo "  # config section) is shadowed by CtrlSF's later nmap/xmap <C-s> - last"
-echo "  # mapping wins. Assert the actual effective binding, not the shadowed one."
-check "<C-s> (normal) resolves to CtrlSF, not shadowed CoC range-select" \
-    "if maparg('<C-s>', 'n') !~# 'CtrlSFVwordPath' | cquit 1 | endif"
-check "<C-s> (visual) resolves to CtrlSF, not shadowed CoC range-select" \
-    "if maparg('<C-s>', 'x') !~# 'CtrlSFVwordPath' | cquit 1 | endif"
+echo "  # --- <C-s> is CtrlSF. Normal mode must use a Cword target: CtrlSFVwordPath"
+echo "  # only exists in visual mode, and a <Plug> target that doesn't exist gets"
+echo "  # typed as literal keys, which overwrites the rest of the line."
+check "<C-s> (normal) searches the word under the cursor with CtrlSF" \
+    "if maparg('<C-s>', 'n') !~# 'CtrlSFCwordPath' | cquit 1 | endif" \
+    "if empty(maparg('<Plug>CtrlSFCwordPath', 'n')) | cquit 1 | endif"
+check "<C-s> (visual) searches the selection with CtrlSF" \
+    "if maparg('<C-s>', 'x') !~# 'CtrlSFVwordPath' | cquit 1 | endif" \
+    "if empty(maparg('<Plug>CtrlSFVwordPath', 'x')) | cquit 1 | endif"
 
 echo
 echo "  # --- CoC: check the <Plug> targets init.vim maps to directly - proves"
@@ -103,7 +105,7 @@ for plug in "coc-diagnostic-prev:n" "coc-diagnostic-next:n" "coc-definition:n" \
 done
 
 echo
-echo "  # --- CoC: CocList-family bindings (cd/ce/cc/co/cs/cj/ck/cp) are plain Ex"
+echo "  # --- CoC: CocList-family bindings (cd/ce/cc/co/cy/cj/ck/cp) are plain Ex"
 echo "  # command invocations, not <Plug> targets - check the commands directly."
 for cmd in CocList CocNext CocPrev CocListResume; do
     check "coc.nvim provides :$cmd" \
@@ -195,3 +197,36 @@ check "vim-surround registers ds (normal mode)" \
     "if empty(maparg('ds', 'n')) | cquit 1 | endif"
 check "emmet-vim registers ,, (insert mode, from g:user_emmet_leader_key)" \
     "if empty(maparg(',,', 'i')) | cquit 1 | endif"
+
+echo
+echo "  # --- CoC features moved off keys that other plugins own."
+check "cv selects a CoC range (normal and visual)" \
+    "if maparg('cv', 'n') !~# 'coc-range-select' || maparg('cv', 'x') !~# 'coc-range-select' | cquit 1 | endif"
+check "cy opens CoC's symbol list" \
+    "if maparg('cy', 'n') !~# 'CocList -I symbols' | cquit 1 | endif"
+check "<C-d> and <C-u> scroll CoC popups" \
+    "if maparg('<C-d>', 'n') !~# 'coc#float#scroll' || maparg('<C-u>', 'n') !~# 'coc#float#scroll' | cquit 1 | endif"
+check "Tab and Shift-Tab cycle CoC's menu (pumvisible() can't see it)" \
+    "if maparg('<Tab>', 'i') !~# 'coc#pum#next' || maparg('<S-Tab>', 'i') !~# 'coc#pum#prev' | cquit 1 | endif"
+
+echo
+echo "  # --- A trailing comment on a map line becomes part of the mapping and"
+echo "  # runs as keystrokes. nr2char(34) is a double quote."
+for key in ",st" ",sn" ",sp" ",sa" ",ss" "<M-J>" "<M-K>"; do
+    check "$key mapping has no trailing comment" \
+        "if empty(maparg('$key', 'n')) || stridx(maparg('$key', 'n'), nr2char(34)) >= 0 | cquit 1 | endif"
+done
+
+echo
+echo "  # --- <leader>r (visual) goes through CmdLine(), which must exist."
+check "CmdLine() is defined for <leader>r" \
+    "if !exists('*CmdLine') | cquit 1 | endif"
+
+echo
+echo "  # --- Cheatsheet: <leader>? opens it in a floating window, q closes it."
+check "<leader>? opens the cheatsheet in a floating window" \
+    "normal ,?" \
+    "if nvim_win_get_config(0).relative ==# '' || line('\$') < 10 | cquit 1 | endif"
+check "q closes the cheatsheet" \
+    "normal ,?" "normal q" \
+    "if nvim_win_get_config(0).relative !=# '' | cquit 1 | endif"

@@ -19,12 +19,21 @@ services:
     stdin_open: true
     command: ["sleep infinity"]
     restart: 'unless-stopped'
+    # The editor runs as a normal user and needs no privileges. With / mounted
+    # below, root in this container would be root on the host, so don't let
+    # setuid programs (su, mount) get there.
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
     volumes:
       - undodir:/home/docker/.config/nvim/undodir
       - mrudir:/home/docker/.config/nvim/mru
       - /:/system # Mount the whole local system into the container
       - ./nvim/init.vim:/home/docker/.config/nvim/init.vim
       - ./nvim/coc-settings.json:/home/docker/.config/nvim/coc-settings.json
+      # Where coc-rust-analyzer downloads its server. Kept on the host so the
+      # download survives the container being recreated. `make up` creates
+      # the host directory; if Docker did, root would own it.
+      - ${HOME}/.local/share/coc-rust-analyzer:/home/docker/.config/coc/extensions/coc-rust-analyzer-data
 
 volumes:
   undodir:

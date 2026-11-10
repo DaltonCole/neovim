@@ -22,6 +22,10 @@ commandTests:
     command: "which"
     args: ["clang-format"]
     exitCode: 0
+  - name: "ripgrep present (CtrlSF and Telescope's live grep need it)"
+    command: "which"
+    args: ["rg"]
+    exitCode: 0
   - name: "python3 present"
     command: "which"
     args: ["python3"]
@@ -59,7 +63,7 @@ commandTests:
     command: "bash"
     args: ["-c", "test -f /usr/include/stdio.h && ls /usr/include/c++/*/vector >/dev/null"]
     exitCode: 0
-  - name: "nvim has python3 provider (required by python-mode)"
+  - name: "nvim has python3 provider"
     command: "nvim"
     args: ["--headless", "-c", "if !has('python3') | cquit 1 | endif", "-c", "q"]
     exitCode: 0

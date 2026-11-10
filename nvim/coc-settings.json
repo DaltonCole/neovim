@@ -1,3 +1,5 @@
 {
-    "suggest.noselect": true
+    "suggest.noselect": true,
+    "rust-analyzer.updates.checkOnStartup": false,
+    "rust-analyzer.workspace.symbol.search.kind": "all_symbols"
 }
