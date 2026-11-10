@@ -1,4 +1,5 @@
-.PHONY: build up down test
+.PHONY: help build up down test
+.DEFAULT_GOAL := help
 
 # Container engine: docker or podman. Defaults to Docker when a real Docker
 # CLI is installed, otherwise Podman. podman-docker's `docker` shim reports
@@ -20,10 +21,15 @@ endif
 # The image's user is created with your UID/GID (see docker-compose.yaml).
 USER_ENV = UID=$$(id -u) GID=$$(id -g) LOCAL_UNAME=$$(whoami)
 
-build:
+help: ## List these targets
+	@echo 'Usage: make <target> [NEOVIM_ENGINE=docker|podman]'
+	@echo
+	@awk -F':.*## ' '/^[a-z-]+:.*## / {printf "  %-7s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
+
+build: ## Build the image
 	$(USER_ENV) $(COMPOSE) build
 
-up:
+up: ## Start the container, recreating it if the image or settings changed
 ifeq ($(NEOVIM_ENGINE),podman)
 # Unlike Docker Compose, podman-compose doesn't recreate the container after
 # the image is rebuilt; it keeps running the old image. Remove a container
@@ -39,10 +45,10 @@ endif
 	@mkdir -p "$$HOME/.local/share/coc-rust-analyzer"
 	$(USER_ENV) $(COMPOSE) up -d
 
-down:
+down: ## Stop and remove the container
 	$(COMPOSE) down
 
 # The test suite uses container-structure-test's Docker driver, so it
 # always runs under Docker regardless of NEOVIM_ENGINE.
-test:
+test: ## Build the image and run the test suite (Docker only)
 	./tests/test-image.sh

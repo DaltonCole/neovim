@@ -13,6 +13,7 @@ make build   # Build the image (passes UID/GID/LOCAL_UNAME automatically)
 make up      # Start the container in detached mode
 make down    # Stop the container
 make test    # Run the backwards-compatibility test suite against Dockerfile (Docker only)
+make help    # List the targets (also what plain `make` does)
 
 # Any of the first three under a specific engine (default: auto-detect)
 make up NEOVIM_ENGINE=podman
