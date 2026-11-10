@@ -88,21 +88,22 @@ FROM docker.io/library/ubuntu:26.04
 #   exuberant-ctags              gutentags
 #   ripgrep                      CtrlSF and Telescope's file search
 #   clang-format                 vim-clang-format
-#   libc6-dev, libstdc++-15-dev  C and C++ standard headers. The clangd that
-#                                coc-clangd downloads needs them to resolve
-#                                <stdio.h>, <vector> and so on. Headers only,
-#                                no compiler. (They used to arrive through
-#                                Recommends, along with all of build-essential.)
+#   clangd                       C and C++ language server for coc-clangd,
+#                                which only tells you it's missing otherwise
+#   libc6-dev, libstdc++-15-dev  C and C++ standard headers. clangd needs them
+#                                to resolve <stdio.h>, <vector> and so on.
+#                                Headers only, no compiler. (They used to arrive
+#                                through Recommends, along with all of
+#                                build-essential.)
 #   curl                         netrw's downloader (:e https://..., spell
 #                                files for languages other than English)
 #   make, patch, bzip2,          what nvim's own commands run: :make,
 #   xz-utils, xxd                :diffpatch, editing .bz2/.xz files, hex
 #                                editing (:help hex-editing). Under 2 MB.
 #   ca-certificates              HTTPS for git, curl and node
-# coc-clangd and coc-rust-analyzer download their language servers with
-# Node's own HTTP and unzip code, so they need no unzip or wget.
-# Not installed: clangd (coc-clangd downloads its own matching clangd on
-# first use), ccls (might need `sudo snap install ccls --classic`), and
+# coc-rust-analyzer downloads its language server with Node's own HTTP and
+# unzip code, so it needs no unzip or wget.
+# Not installed: ccls (might need `sudo snap install ccls --classic`) and
 # git-all (fugitive/coc-git/gutentags only need plain git).
 # `apt-get upgrade` brings in base-image security fixes on each rebuild.
 RUN apt-get -y update && \
@@ -111,6 +112,7 @@ RUN apt-get -y update && \
                        bzip2 \
                        ca-certificates \
                        clang-format \
+                       clangd \
                        curl \
                        exuberant-ctags \
                        git \

@@ -192,6 +192,8 @@ echo
 echo "  # --- CoC features moved off keys that other plugins own."
 check "cv selects a CoC range (normal and visual)" \
     "if maparg('cv', 'n') !~# 'coc-range-select' || maparg('cv', 'x') !~# 'coc-range-select' | cquit 1 | endif"
+check "gi falls back when a language server can't find implementations" \
+    "if maparg('gi', 'n') !~# 'GoToImplementation' || !exists('*GoToImplementation') | cquit 1 | endif"
 check "cy opens CoC's symbol list" \
     "if maparg('cy', 'n') !~# 'CocList -I symbols' | cquit 1 | endif"
 check "<C-d> and <C-u> scroll CoC popups" \

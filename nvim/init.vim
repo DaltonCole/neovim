@@ -346,8 +346,18 @@ nmap <silent> ]g <Plug>(coc-diagnostic-next)
 " GoTo navigation
 nmap <silent> gd <Plug>(coc-definition)
 nmap <silent> gy <Plug>(coc-type-definition)
-nmap <silent> gi <Plug>(coc-implementation)
+nnoremap <silent> gi :<C-u>call GoToImplementation()<CR>
 nmap <silent> gr <Plug>(coc-references)
+
+" Python's language server can't find implementations. Rather than an error,
+" gi then searches every symbol with the name under the cursor.
+function! GoToImplementation() abort
+  if CocAction('hasProvider', 'implementation')
+    call CocActionAsync('jumpImplementation')
+  else
+    execute 'CocList -I --input=' . expand('<cword>') . ' symbols'
+  endif
+endfunction
 
 " Show documentation in preview window
 nnoremap <silent> H :call ShowDocumentation()<CR>
@@ -537,6 +547,27 @@ inoremap `  ``<Esc>ha
 " keys, at least two spaces, then the description. Keep lines under 76 columns.
 
 let s:cheatsheet =<< END
+FIND A FUNCTION
+  gd                jump to where it's defined
+  gi                jump to its implementations and overrides
+  gr                list every place it's used
+  gy                jump to the definition of its type
+  cy                search every function and type by name
+  co / ,tt          list this file's functions, type to filter
+  Ctrl-o / Ctrl-i   jump back / forward again
+
+IF GD OR GI CAN'T FIND IT
+  gi in Python      lists every symbol with that name, choose one
+  gd stops at .h    C++ needs compile_commands.json, see the recipe below
+  Ctrl-]            jump with ctags, needs no language server
+  :CocRestart       restart the language servers
+  :CocList services  see which language servers are running
+
+RECIPE: MAKE GD REACH OTHER C++ FILES
+  cmake -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON   on the host (CMake)
+  bear -- make      on the host, for plain Makefiles
+  :CocRestart       load it, then gd reaches the .cpp
+
 FIND A FILE
   Ctrl-f / ,tf      fuzzy find in the current directory
   ,f                recently opened files
@@ -567,8 +598,7 @@ SEARCH ACROSS THE PROJECT
   ,th               search Vim's help topics
 
 JUMP BY TAG (CTAGS)
-  Ctrl-]            jump to the definition under the cursor
-  Ctrl-t            jump back
+  Ctrl-t            jump back after Ctrl-]
   :ts name          list every tag with that name
 
 KEYS INSIDE THE FILE TREE (NERDTREE)
@@ -607,15 +637,9 @@ KEYS INSIDE SEARCH RESULTS (CTRLSF)
   q                 close the results
 
 UNDERSTAND CODE (COC)
-  gd                go to the definition
-  gy                go to the type definition
-  gi                go to the implementation
-  gr                list every reference
   H                 show docs for the word under the cursor
   Ctrl-d / Ctrl-u   scroll an open docs popup (otherwise half a page)
   Ctrl-j / Ctrl-k   scroll an open docs popup in insert mode
-  co / ,tt          outline of this file
-  cy                project-wide symbol search (needs a language server)
 
 FIX ERRORS AND WARNINGS (COC)
   ]g / [g           next / previous problem
@@ -826,7 +850,6 @@ VIM COMMANDS YOUR KEYS REPLACED
   PageDown          page down (Ctrl-f is file search here)
 
 VIM: MOVING AROUND
-  Ctrl-o / Ctrl-i   back / forward through your jumps
   g; / g,           older / newer edit location
   %                 matching bracket
   gg / G            top / bottom of the file
