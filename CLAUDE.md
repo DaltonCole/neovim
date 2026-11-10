@@ -56,4 +56,4 @@ Open work lives in GitHub issues (`gh issue list`). There is no TODO file.
 - **File navigation**: NERDTree, Telescope (files, recent files, buffers), CtrlSF (project search).
 - **Tags**: `vim-gutentags` (auto ctags). The file outline comes from CoC.
 - **Leader key**: `,`
-- **Cheatsheet**: `,?` (or `:Cheatsheet`) opens the key reference stored in section 8 of `init.vim`. Update it whenever a key is added or changed.
+- **Cheatsheet**: `F1` in any mode, `,?` in normal and visual mode, or `:Cheatsheet` opens the key reference stored in section 8 of `init.vim`. The keys for the current mode or plugin window come first, using the `@tags` on each section title. Update it whenever a key is added or changed.

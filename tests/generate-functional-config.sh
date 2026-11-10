@@ -222,3 +222,21 @@ check "<leader>? opens the cheatsheet in a floating window" \
 check "q closes the cheatsheet" \
     "normal ,?" "normal q" \
     "if nvim_win_get_config(0).relative !=# '' | cquit 1 | endif"
+
+echo
+echo "  # --- The cheatsheet lists the current mode's or window's keys first."
+check "F1 opens the cheatsheet in normal, visual and insert mode" \
+    "if empty(maparg('<F1>', 'n')) || empty(maparg('<F1>', 'x')) || empty(maparg('<F1>', 'i')) | cquit 1 | endif"
+check "finding functions comes first in normal mode" \
+    "Cheatsheet" "if getline(1) !=# 'FIND A FUNCTION' | cquit 1 | endif"
+check "insert-mode keys come first from insert mode" \
+    "Cheatsheet insert" "if getline(1) !=# 'IN INSERT MODE' | cquit 1 | endif"
+check "visual-mode keys come first from visual mode" \
+    "Cheatsheet visual" "if getline(1) !=# 'WITH TEXT SELECTED' | cquit 1 | endif"
+check "a plugin window's keys come first inside it" \
+    "setfiletype nerdtree" "Cheatsheet" "if getline(1) !~# 'NERDTREE' | cquit 1 | endif"
+check "F1 in Fugitive's status window opens the cheatsheet, not its help" \
+    "if !exists('#User#FugitiveIndex') | cquit 1 | endif"
+check "every other section still follows, and tags aren't shown" \
+    "Cheatsheet insert" \
+    "if search('^FIND A FUNCTION\$') == 0 || search('@insert') != 0 | cquit 1 | endif"

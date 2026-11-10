@@ -1,7 +1,7 @@
 " =============================================================================
 " init.vim
 " =============================================================================
-" Press ,? in normal mode for the command cheatsheet (or run :Cheatsheet).
+" Press F1 in any mode, or ,? in normal and visual mode, for the cheatsheet.
 "
 " Sections:
 "   1. Plugins          plug#begin ... plug#end
@@ -11,7 +11,7 @@
 "   5. Code             CoC, formatters, languages
 "   6. Windows & Git    splits, window movement, Fugitive, GitGutter
 "   7. Editing          surround, pairs, Emmet, spell, align, insert helpers
-"   8. Cheatsheet       the ,? popup and its contents
+"   8. Cheatsheet       the F1 and ,? popup and its contents
 "
 " When you add or change a key, update the cheatsheet in section 8.
 " Never put a trailing " comment on a map line: it becomes part of the mapping.
@@ -542,9 +542,13 @@ inoremap `  ``<Esc>ha
 " =============================================================================
 " 8. CHEATSHEET
 " =============================================================================
-" ,? or :Cheatsheet shows the text below in a floating window.
+" F1, ,? or :Cheatsheet shows the text below in a floating window, with the
+" keys for the current mode or plugin window first.
 " Format: titles start in column 1 in capitals; entries are two spaces, the
 " keys, at least two spaces, then the description. Keep lines under 76 columns.
+" A title can end with @tags saying where its keys apply: @normal, @insert,
+" @visual, @nerdtree, @telescope, @ctrlsf, @fugitive, @list, @diff, @quickfix.
+" A title with no tags counts as @normal.
 
 let s:cheatsheet =<< END
 FIND A FUNCTION
@@ -586,13 +590,10 @@ SEARCH IN THIS FILE
   Ctrl-Space        search backward
   n / N             next / previous match
   * / #             search for the word under the cursor
-  * (visual)        search for the selected text
-  ,r (visual)       replace the selected text in this file
   :noh              clear the search highlight
 
 SEARCH ACROSS THE PROJECT
   Ctrl-s            search for the word under the cursor, Enter to run
-  Ctrl-s (visual)   search for the selected text, Enter to run
   :CtrlSF text      search for any text
   :CtrlSFToggle     show or hide the last results
   ,th               search Vim's help topics
@@ -601,7 +602,7 @@ JUMP BY TAG (CTAGS)
   Ctrl-t            jump back after Ctrl-]
   :ts name          list every tag with that name
 
-KEYS INSIDE THE FILE TREE (NERDTREE)
+KEYS INSIDE THE FILE TREE (NERDTREE)  @nerdtree
   Enter / o         open the file, or open and close the folder
   i / s             open in a horizontal / vertical split
   t / T             open in a new tab / a background tab
@@ -614,7 +615,7 @@ KEYS INSIDE THE FILE TREE (NERDTREE)
   q                 close the tree
   ?                 list every key
 
-KEYS INSIDE TELESCOPE
+KEYS INSIDE TELESCOPE  @telescope
   Ctrl-n / Ctrl-p   move down / up the list
   Enter             open
   Ctrl-x / Ctrl-v   open in a horizontal / vertical split
@@ -625,7 +626,7 @@ KEYS INSIDE TELESCOPE
   Ctrl-c            close
   Ctrl-/            list every key
 
-KEYS INSIDE SEARCH RESULTS (CTRLSF)
+KEYS INSIDE SEARCH RESULTS (CTRLSF)  @ctrlsf
   Ctrl-h            move into the results (they open on the left)
   Enter / o         open the match
   O                 open the match and close the results
@@ -639,7 +640,6 @@ KEYS INSIDE SEARCH RESULTS (CTRLSF)
 UNDERSTAND CODE (COC)
   H                 show docs for the word under the cursor
   Ctrl-d / Ctrl-u   scroll an open docs popup (otherwise half a page)
-  Ctrl-j / Ctrl-k   scroll an open docs popup in insert mode
 
 FIX ERRORS AND WARNINGS (COC)
   ]g / [g           next / previous problem
@@ -657,14 +657,37 @@ CHANGE CODE (COC)
   :Fold             fold the file using CoC's code ranges
   cv                select this piece of code, press again to grow it
 
-COMPLETION (INSERT MODE)
+IN INSERT MODE  @insert
+  jj                leave insert mode
+  F1                open this cheatsheet
+  Ctrl-j / Ctrl-k   scroll an open docs popup
+  Ctrl-r a          paste register a
+  Ctrl-o            run one normal-mode command
+  Ctrl-w            delete the word before the cursor
+
+COMPLETION (INSERT MODE)  @insert
   Tab               start completion, then next suggestion
   Shift-Tab         previous suggestion
   Ctrl-n / Ctrl-p   next / previous suggestion
   Ctrl-y            accept the suggestion
   Ctrl-e            dismiss the list
 
-SELECT BY CODE STRUCTURE (COC)
+WITH TEXT SELECTED  @visual
+  Ctrl-s            search the project for the selection, Enter to run
+  *                 search this file for the selection
+  ,r                replace the selection in this file
+  ca                code actions on the selection
+  cf                format the selection
+  cv                grow the selection to the next code structure
+  S"                wrap the selection in quotes
+  ,s                wrap the selection in ( )
+  $1 $2 $3          wrap the selection in ( ) [ ] { }
+  $$ $q $e          wrap the selection in " " ' ' ` `
+  t                 align on a character: type it, then press Enter
+  gc                comment or uncomment the selection
+  o                 jump to the other end of the selection
+
+SELECT BY CODE STRUCTURE (COC)  @normal @visual
   if / af           inside / around a function (vif, daf, yaf)
   ic / ac           inside / around a class
 
@@ -677,7 +700,7 @@ COC LISTS
 RUST LANGUAGE SERVER
   :CocCommand rust-analyzer.upgrade   update the server on your host
 
-KEYS INSIDE A COC LIST
+KEYS INSIDE A COC LIST  @list
   Enter             open or run the item
   Tab               choose what to do with the item
   Up / Down         move through the list
@@ -719,7 +742,7 @@ GIT
   ,hp               preview the change under the cursor (needs ,gg)
   ,hs / ,hu         stage / undo the change (needs ,gg)
 
-KEYS INSIDE :GIT STATUS
+KEYS INSIDE :GIT STATUS  @fugitive
   s / u             stage / unstage the file or hunk
   =                 show or hide an inline diff
   dv                side-by-side diff
@@ -729,7 +752,7 @@ KEYS INSIDE :GIT STATUS
   gq                close the status window
   g?                list every key
 
-IN A DIFF
+IN A DIFF  @diff
   ]c / [c           next / previous change
   do / dp           take the change from / give it to the other side
   :diffupdate       recompute the diff
@@ -741,12 +764,8 @@ SURROUND: QUOTES, BRACKETS AND TAGS
   cs"'              change surrounding " to '
   cst<p>            change the surrounding tag to <p>
   ds"               delete the surrounding quotes
-  S" (visual)       wrap the selection in quotes
-  ,s (visual)       wrap the selection in ( )
-  $1 $2 $3 (visual)  wrap the selection in ( ) [ ] { }
-  $$ $q $e (visual)  wrap the selection in " " ' ' ` `
 
-BRACKET AND QUOTE HELPERS (INSERT MODE)
+BRACKET AND QUOTE HELPERS (INSERT MODE)  @insert
   $1 $2 $3          insert ( ) [ ] { } with the cursor inside
   $4                insert a { } block on separate lines
   $q $e             insert ' ' or " " with the cursor inside
@@ -767,18 +786,15 @@ HTML (EMMET, CLOSETAG)
   >                 close the tag automatically in HTML files
   >>                put the closing tag on a new line
 
-ALIGN (TABULAR)
-  t (visual)        align on a character: type it, then press Enter
+ALIGN (TABULAR)  @visual
   :Tab /=           align on =
 
 MOVE AND EDIT
-  jj                leave insert mode
   0                 first non-blank character on the line
   |                 first column of the line
   w / b / e         stop at camelCase and snake_case parts
   Alt-Shift-j / k   move the line down / up
   gcc               comment or uncomment the line
-  gc (visual)       comment or uncomment the selection
   ,pp               toggle paste mode
 
 SPELLING
@@ -858,7 +874,7 @@ VIM: MOVING AROUND
   f{c} / t{c}       to / just before a character on this line
   ;                 repeat that find
 
-VIM: SELECTING
+VIM: SELECTING  @normal @visual
   v / V / Ctrl-v    select characters / lines / a block
   gv                reselect the last selection
   o                 jump to the other end of the selection
@@ -886,7 +902,6 @@ VIM: MARKS
 VIM: REGISTERS
   "ay / "ap         yank into / paste from register a
   "0p               paste the last yank, not the last delete
-  Ctrl-r a          paste register a in insert mode
   :reg              list registers
 
 VIM: SUBSTITUTE
@@ -896,7 +911,7 @@ VIM: SUBSTITUTE
   :'<,'>s/a/b/g     replace in the selection
   &                 repeat the last substitute on this line
 
-VIM: QUICKFIX LIST
+VIM: QUICKFIX LIST  @normal @quickfix
   :copen / :cclose  open / close the list
   ]q / [q           next / previous entry
   :cdo cmd          run a command on each entry
@@ -907,11 +922,78 @@ VIM: FOLDS
   zM / zR           close / open every fold
 END
 
-function! s:OpenCheatsheet() abort
+" Which sections come first depends on where the sheet was opened from.
+let s:cheatsheet_labels = {
+      \ 'normal': 'Normal mode', 'insert': 'Insert mode', 'visual': 'Visual mode',
+      \ 'nerdtree': 'File tree', 'telescope': 'Telescope', 'ctrlsf': 'Search results',
+      \ 'fugitive': 'Git status', 'list': 'CoC list', 'diff': 'Diff', 'quickfix': 'Quickfix',
+      \ }
+let s:cheatsheet_filetypes = {
+      \ 'nerdtree': 'nerdtree', 'TelescopePrompt': 'telescope', 'ctrlsf': 'ctrlsf',
+      \ 'fugitive': 'fugitive',
+      \ }
+
+function! s:CheatsheetContext(mode) abort
+  if has_key(s:cheatsheet_filetypes, &filetype)
+    return s:cheatsheet_filetypes[&filetype]
+  elseif &buftype ==# 'quickfix'
+    return 'quickfix'
+  elseif &diff
+    return 'diff'
+  endif
+  return a:mode
+endfunction
+
+" The sections tagged for this context, then everything else, both in file order.
+function! s:CheatsheetLines(context) abort
+  let first = []
+  let rest = []
+  let block = []
+  let tags = []
+  for line in s:cheatsheet + ['Z']
+    if line =~# '^\u'
+      if !empty(block)
+        call extend(index(tags, a:context) >= 0 ? first : rest, block + [''])
+      endif
+      let parts = split(line, '\s\+@')
+      let block = [parts[0]]
+      let tags = len(parts) > 1 ? parts[1:] : ['normal']
+    elseif line !~# '^\s*$'
+      call add(block, line)
+    endif
+  endfor
+  return first + ['──── EVERYTHING ELSE ────', ''] + rest[:-2]
+endfunction
+
+function! s:CloseCheatsheet() abort
+  let return_to = b:cheatsheet_return
+  let float = win_getid()
+  " Closing a float can land on any window, so go back to the one it came from.
+  call win_gotoid(return_to.win)
+  silent! call nvim_win_close(float, v:true)
+  if return_to.mode ==# 'visual'
+    normal! gv
+  elseif return_to.mode ==# 'insert'
+    if return_to.at_end
+      startinsert!
+    else
+      call cursor(return_to.line, return_to.col)
+      startinsert
+    endif
+  endif
+endfunction
+
+function! s:OpenCheatsheet(mode) abort
+  let return_to = {'win': win_getid(), 'mode': a:mode, 'line': line('.'), 'col': col('.'),
+        \ 'at_end': col('.') > len(getline('.'))}
+  let context = s:CheatsheetContext(a:mode)
+  let lines = s:CheatsheetLines(context)
+  stopinsert
   let width = min([76, &columns - 4])
-  let height = min([len(s:cheatsheet), &lines - 6])
+  let height = min([len(lines), &lines - 6])
   let buf = nvim_create_buf(v:false, v:true)
-  call nvim_buf_set_lines(buf, 0, -1, v:false, s:cheatsheet)
+  call nvim_buf_set_lines(buf, 0, -1, v:false, lines)
+  " noautocmd: Telescope closes itself when its prompt sees BufLeave.
   let win = nvim_open_win(buf, v:true, {
         \ 'relative': 'editor',
         \ 'width': width,
@@ -920,18 +1002,29 @@ function! s:OpenCheatsheet() abort
         \ 'col': (&columns - width) / 2,
         \ 'style': 'minimal',
         \ 'border': 'rounded',
-        \ 'title': ' Cheatsheet   / search   n next   q close ',
+        \ 'zindex': 200,
+        \ 'noautocmd': v:true,
+        \ 'title': printf(' Cheatsheet: %s   / search   n next   q close ', s:cheatsheet_labels[context]),
         \ 'title_pos': 'center',
         \ })
+  let b:cheatsheet_return = return_to
   setlocal bufhidden=wipe nomodifiable scrolloff=0
   setlocal winhighlight=NormalFloat:Normal,FloatBorder:Normal
   call matchadd('Title', '^\u.*$')
+  call matchadd('Title', '^─.*$')
   call matchadd('Special', '^  \S.\{-}\ze\s\{2,}')
-  nnoremap <buffer> <silent> <nowait> q :close<CR>
-  nnoremap <buffer> <silent> <nowait> <Esc> :close<CR>
-  nnoremap <buffer> <silent> <nowait> <leader>? :close<CR>
+  for key in ['q', '<Esc>', '<F1>', '<leader>?']
+    execute 'nnoremap <buffer> <silent> <nowait> ' . key . ' :call <SID>CloseCheatsheet()<CR>'
+  endfor
   execute 'autocmd WinLeave <buffer> ++once silent! call nvim_win_close(' . win . ', v:true)'
 endfunction
 
-command! Cheatsheet call s:OpenCheatsheet()
-nnoremap <silent> <leader>? :Cheatsheet<CR>
+command! -nargs=? Cheatsheet call s:OpenCheatsheet(empty(<q-args>) ? 'normal' : <q-args>)
+nnoremap <silent> <leader>? :call <SID>OpenCheatsheet('normal')<CR>
+nnoremap <silent> <F1> :call <SID>OpenCheatsheet('normal')<CR>
+xnoremap <silent> <leader>? <Esc>:call <SID>OpenCheatsheet('visual')<CR>
+xnoremap <silent> <F1> <Esc>:call <SID>OpenCheatsheet('visual')<CR>
+inoremap <silent> <F1> <Cmd>call <SID>OpenCheatsheet('insert')<CR>
+" Fugitive's status window uses F1 for its own help. CoC lists read the keyboard
+" themselves, so the sheet can't open from one: press Esc first.
+autocmd User FugitiveIndex nnoremap <buffer> <silent> <F1> :call <SID>OpenCheatsheet('normal')<CR>
