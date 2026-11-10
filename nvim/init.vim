@@ -12,8 +12,10 @@
 "   6. Windows & Git    splits, window movement, Fugitive, GitGutter
 "   7. Editing          surround, pairs, Emmet, spell, align, insert helpers
 "   8. Cheatsheet       the F1 and ,? popup and its contents
+"   9. Key hints        labels for the which-key popup
 "
-" When you add or change a key, update the cheatsheet in section 8.
+" When you add or change a key, update the cheatsheet in section 8 and its
+" popup label in section 9.
 " Never put a trailing " comment on a map line: it becomes part of the mapping.
 " =============================================================================
 
@@ -58,6 +60,9 @@ Plug 'dyng/ctrlsf.vim'           " <C-s>      Search across files
 " --- Telescope ---
 Plug 'nvim-lua/plenary.nvim'
 Plug 'nvim-telescope/telescope.nvim', { 'tag': '0.1.6' }
+
+" --- Key hints ---
+Plug 'folke/which-key.nvim'      " Pause after g , or c to see what comes next
 
 " --- Tags ---
 " ctags (apt package, see Dockerfile): ctrl-] jump to def, ctrl-t jump back, :ts list tags
@@ -349,6 +354,16 @@ nmap <silent> gy <Plug>(coc-type-definition)
 nnoremap <silent> gi :<C-u>call GoToImplementation()<CR>
 nmap <silent> gr <Plug>(coc-references)
 
+" Neovim's own language-server keys do nothing here because CoC is the client,
+" and they make gr wait to see whether another key follows.
+silent! nunmap grr
+silent! nunmap gra
+silent! xunmap gra
+silent! nunmap gri
+silent! nunmap grn
+silent! nunmap grt
+silent! nunmap gO
+
 " Python's language server can't find implementations. Rather than an error,
 " gi then searches every symbol with the name under the cursor.
 function! GoToImplementation() abort
@@ -571,6 +586,14 @@ RECIPE: MAKE GD REACH OTHER C++ FILES
   cmake -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON   on the host (CMake)
   bear -- make      on the host, for plain Makefiles
   :CocRestart       load it, then gd reaches the .cpp
+
+SEE WHICH KEYS COME NEXT (WHICH-KEY)
+  g , c [ ] z       press one and wait: a popup lists what can follow
+  Enter             run a key that also starts longer keys (,s and ,n)
+  Backspace         go back one key in the popup
+  Esc               close the popup
+  Ctrl-d / Ctrl-u   scroll a long popup
+  :WhichKey         list every key
 
 FIND A FILE
   Ctrl-f / ,tf      fuzzy find in the current directory
@@ -1028,3 +1051,159 @@ inoremap <silent> <F1> <Cmd>call <SID>OpenCheatsheet('insert')<CR>
 " Fugitive's status window uses F1 for its own help. CoC lists read the keyboard
 " themselves, so the sheet can't open from one: press Esc first.
 autocmd User FugitiveIndex nnoremap <buffer> <silent> <F1> :call <SID>OpenCheatsheet('normal')<CR>
+
+
+" =============================================================================
+" 9. KEY HINTS
+" =============================================================================
+" which-key lists the keys that can follow when you pause partway through a
+" command. These labels are what it shows. A key with no label here shows its
+" raw command instead.
+" Plain text instead of its default icons, which need a Nerd Font.
+" pcall because the image build loads this file before the plugin is installed.
+
+" A key that also starts longer keys waits in the popup for the next key, so
+" Enter runs the key itself.
+nnoremap <leader>s<CR> <C-w>s
+xnoremap <leader>s<CR> xi()<Esc>P
+nmap <leader>n<CR> <Plug>(emmet-move-next)
+
+lua << EOF
+pcall(function()
+  local wk = require('which-key')
+  local function_keys = {}
+  for i = 1, 12 do function_keys['F' .. i] = 'F' .. i end
+
+  wk.setup({
+    delay = 500,
+    -- which-key only watches g, z and symbols by itself. CoC's keys start with c.
+    triggers = { { '<auto>', mode = 'nxso' }, { 'c', mode = 'n' } },
+    icons = {
+      mappings = false,
+      breadcrumb = '>',
+      separator = '->',
+      ellipsis = '...',
+      keys = vim.tbl_extend('force', function_keys, {
+        Up = 'Up', Down = 'Down', Left = 'Left', Right = 'Right',
+        C = 'Ctrl-', M = 'Alt-', D = 'Cmd-', S = 'Shift-',
+        CR = 'Enter', NL = 'Enter', Esc = 'Esc', BS = 'Backspace',
+        Space = 'Space', Tab = 'Tab',
+        ScrollWheelDown = 'ScrollDown', ScrollWheelUp = 'ScrollUp',
+      }),
+    },
+  })
+
+  wk.add({
+    -- Finding code
+    { 'gd', desc = 'Go to definition' },
+    { 'gi', desc = 'Go to implementation' },
+    { 'gr', desc = 'List references' },
+    { 'gy', desc = 'Go to type definition' },
+    { 'cy', desc = 'Search all functions and types' },
+    { 'co', desc = "List this file's functions" },
+    { ',tt', desc = "List this file's functions" },
+
+    -- Problems and changes
+    { '[g', desc = 'Previous problem' },
+    { ']g', desc = 'Next problem' },
+    { 'cd', desc = 'List problems' },
+    { 'cq', group = 'Fix' },
+    { 'cqf', desc = 'Apply suggested fix' },
+    { 'cr', group = 'Rename' },
+    { 'crn', desc = 'Rename symbol' },
+    { 'ca', desc = 'Code actions on {motion}' },
+    { 'cac', desc = 'Code actions for the file' },
+    { 'ccl', desc = 'Run code lens' },
+    { 'cf', desc = 'Format {motion}' },
+    { 'cv', desc = 'Select code, press again to grow' },
+
+    -- CoC lists
+    { 'cc', desc = 'CoC commands' },
+    { 'ce', desc = 'CoC extensions' },
+    { 'cp', desc = 'Reopen the last list' },
+    { 'cj', desc = 'Next item of the last list' },
+    { 'ck', desc = 'Previous item of the last list' },
+
+    -- Surround
+    { 'cs', desc = 'Change surrounding' },
+    { 'cS', desc = 'Change surrounding, on new lines' },
+    { 'ds', desc = 'Delete surrounding' },
+    { 'ys', desc = 'Add surrounding to {motion}' },
+    { 'yS', desc = 'Add surrounding on new lines' },
+    { 'yss', desc = 'Surround the line' },
+
+    -- Leader keys
+    { ',?', desc = 'Cheatsheet' },
+    { ',f', desc = 'Recent files' },
+    { ',o', desc = 'Open buffers' },
+    { ',v', desc = 'Split left and right' },
+    { ',', group = 'Leader' },
+    { ',s', desc = 'Spelling, or Enter to split top and bottom' },
+    { ',s<CR>', desc = 'Split top and bottom' },
+    { ',p', group = 'Paste mode' },
+    { ',pp', desc = 'Toggle paste mode' },
+    { ',n', desc = 'File tree, or Enter for the next Emmet point' },
+    { ',n<CR>', desc = 'Emmet: next edit point' },
+    { ',nn', desc = 'Toggle the file tree' },
+    { ',nf', desc = 'Show this file in the tree' },
+    { ',ng', desc = 'Open the tree at the Git root' },
+    { ',nb', desc = 'Open the tree at a bookmark' },
+    { ',t', group = 'Telescope' },
+    { ',tf', desc = 'Find files' },
+    { ',tb', desc = 'Open buffers' },
+    { ',th', desc = "Vim's help topics" },
+    { ',g', group = 'Git' },
+    { ',gg', desc = 'Toggle change markers' },
+    { ',gv', desc = 'Side-by-side diff' },
+    { ',h', group = 'Git change (needs ,gg)' },
+    { ',hp', desc = 'Preview the change' },
+    { ',hs', desc = 'Stage the change' },
+    { ',hu', desc = 'Undo the change' },
+    { ',st', desc = 'Toggle spell check' },
+    { ',sn', desc = 'Next misspelled word' },
+    { ',sp', desc = 'Previous misspelled word' },
+    { ',ss', desc = 'Suggest corrections' },
+    { ',sa', desc = 'Add word to dictionary' },
+
+    -- Emmet
+    { ',,', desc = 'Emmet: expand' },
+    { ',N', desc = 'Emmet: previous edit point' },
+    { ',d', desc = 'Emmet: select tag inward' },
+    { ',D', desc = 'Emmet: select tag outward' },
+    { ',u', desc = 'Emmet: update tag' },
+    { ',k', desc = 'Emmet: remove tag' },
+    { ',j', desc = 'Emmet: split or join tag' },
+    { ',/', desc = 'Emmet: toggle comment' },
+    { ',a', desc = 'Emmet: URL to link' },
+    { ',A', desc = 'Emmet: URL to summary' },
+    { ',m', desc = 'Emmet: merge lines' },
+    { ',;', desc = 'Emmet: expand word' },
+    { ',i', desc = 'Emmet: image size' },
+    { ',I', desc = 'Emmet: encode image' },
+
+    -- With text selected
+    {
+      mode = 'x',
+      { ',?', desc = 'Cheatsheet' },
+      { ',r', desc = 'Replace the selection in this file' },
+      { ',', group = 'Leader' },
+      { ',s', desc = 'Spelling, or Enter to wrap in ( )' },
+      { ',s<CR>', desc = 'Wrap in ( )' },
+      { ',,', desc = 'Emmet: expand' },
+      { ',c', desc = 'Emmet: pretty-print code' },
+      { ',d', desc = 'Emmet: select tag inward' },
+      { ',D', desc = 'Emmet: select tag outward' },
+      { 'ca', desc = 'Code actions' },
+      { 'cf', desc = 'Format' },
+      { 'cv', desc = 'Grow the selection' },
+      { 'gS', desc = 'Surround on new lines' },
+      { '$1', desc = 'Wrap in ( )' },
+      { '$2', desc = 'Wrap in [ ]' },
+      { '$3', desc = 'Wrap in { }' },
+      { '$$', desc = 'Wrap in double quotes' },
+      { '$q', desc = 'Wrap in single quotes' },
+      { '$e', desc = 'Wrap in backticks' },
+    },
+  })
+end)
+EOF

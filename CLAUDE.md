@@ -55,5 +55,6 @@ Open work lives in GitHub issues (`gh issue list`). There is no TODO file.
 - **Completion/LSP**: CoC (`coc.nvim`) with extensions for C/C++ (`coc-clangd`), Python (`coc-pyright`), Rust (`coc-rust-analyzer`), TypeScript, YAML, JSON, etc.
 - **File navigation**: NERDTree, Telescope (files, recent files, buffers), CtrlSF (project search).
 - **Tags**: `vim-gutentags` (auto ctags). The file outline comes from CoC.
+- **Key hints**: which-key lists what can follow when you pause after `g`, `,`, `c` and other prefixes. Its labels are in section 9 of `init.vim`.
 - **Leader key**: `,`
 - **Cheatsheet**: `F1` in any mode, `,?` in normal and visual mode, or `:Cheatsheet` opens the key reference stored in section 8 of `init.vim`. The keys for the current mode or plugin window come first, using the `@tags` on each section title. Update it whenever a key is added or changed.

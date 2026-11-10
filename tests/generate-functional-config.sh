@@ -240,3 +240,20 @@ check "F1 in Fugitive's status window opens the cheatsheet, not its help" \
 check "every other section still follows, and tags aren't shown" \
     "Cheatsheet insert" \
     "if search('^FIND A FUNCTION\$') == 0 || search('@insert') != 0 | cquit 1 | endif"
+
+echo
+echo "  # --- which-key's setup runs inside a pcall, so a mistake there is silent."
+echo "  # It finishes loading just after VimEnter, so give it a moment."
+check "which-key is set up and has its labels" \
+    "doautocmd VimEnter" \
+    "sleep 300m" \
+    "if !luaeval('require(''which-key.config'').loaded') | cquit 1 | endif" \
+    "if luaeval('#vim.tbl_filter(function(m) return m.lhs == ''gd'' and m.desc ~= nil end, require(''which-key.config'').mappings)') == 0 | cquit 1 | endif"
+check "which-key also watches c, where CoC's keys are" \
+    "doautocmd VimEnter" \
+    "sleep 300m" \
+    "if luaeval('#vim.tbl_filter(function(m) return m.lhs == ''c'' end, require(''which-key.config'').triggers.mappings)') == 0 | cquit 1 | endif"
+check "Enter runs ,s and ,n from the popup" \
+    "if empty(maparg(',s<CR>', 'n')) || empty(maparg(',s<CR>', 'x')) || empty(maparg(',n<CR>', 'n')) | cquit 1 | endif"
+check "Neovim's unused language-server keys don't delay gr" \
+    "for k in ['grr', 'gra', 'gri', 'grn', 'grt', 'gO'] | if !empty(maparg(k, 'n')) | cquit 1 | endif | endfor"
