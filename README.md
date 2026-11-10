@@ -97,3 +97,14 @@ alias vim="neovim"
 alias nvim="neovim"
 alias vi="neovim"
 ```
+
+## Finding code and remembering keys
+
+Press `F1` in any mode for the full cheatsheet, with the keys for where you are listed first. These plugins do most of the work when you're looking for code or have forgotten a key:
+
+| Plugin | What it does | How to use it |
+|--------|--------------|---------------|
+| [which-key.nvim](https://github.com/folke/which-key.nvim) | Lists the keys that can follow | Press `g`, `,`, `c`, `[`, `]` or `z` and wait half a second, then press the next key. `Backspace` goes back one key and `Esc` cancels. If a key also starts longer keys, like `,s`, press `Enter` in the popup to run it. |
+| [telescope-coc.nvim](https://github.com/fannheyward/telescope-coc.nvim) | Shows language-server results in Telescope with a preview of the code | `gr` lists every place the word under the cursor is used. `gi` jumps to its implementation, or lists them if there are several. `cy` searches every function and type by name. `Ctrl-n` and `Ctrl-p` move, `Enter` opens, and `Ctrl-o` jumps back afterwards. |
+| [coc-basedpyright](https://github.com/fannheyward/coc-basedpyright) | Python language server that can find implementations | `gi` on a method finds the classes that override it. Type checking is set to `standard`, the same as pyright's default. Change `basedpyright.analysis.typeCheckingMode` in `nvim/coc-settings.json` for stricter checks. |
+| [any-jump.vim](https://github.com/pechorin/any-jump.vim) | Finds definitions and uses by searching text, with no language server | `gs` searches for the word under the cursor, or for the selected text. `gS` reopens the last search. In the results, `Enter` opens, `s` and `v` open in a split, `p` previews and `q` closes. `gd`, `gi`, `gr` and `gy` use it automatically in files with no language server, and `gd` and `gy` also use it when the language server finds nothing. |
