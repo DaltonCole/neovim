@@ -21,6 +21,10 @@ make up NEOVIM_ENGINE=podman
 
 The image is tagged `neovim:latest` (`localhost/neovim:latest` under Podman). The compose project name is pinned to `neovim` (top-level `name:` in `docker-compose.yaml`), and the host's `neovim()` function finds the container by its `com.docker.compose.project=neovim` / `com.docker.compose.service=neovim` labels, which both Docker Compose and podman-compose set.
 
+## Tracking Work
+
+Open work lives in GitHub issues (`gh issue list`). There is no TODO file.
+
 ## Architecture
 
 | File | Purpose |
