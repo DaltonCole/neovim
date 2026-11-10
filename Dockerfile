@@ -86,7 +86,7 @@ FROM docker.io/library/ubuntu:26.04
 #   git, less                    fugitive, gitgutter, coc-git, gutentags;
 #                                less is git's default pager
 #   exuberant-ctags              gutentags
-#   ripgrep                      CtrlSF and Telescope's file search
+#   ripgrep                      CtrlSF, any-jump and Telescope's file search
 #   clang-format                 vim-clang-format
 #   clangd                       C and C++ language server for coc-clangd,
 #                                which only tells you it's missing otherwise

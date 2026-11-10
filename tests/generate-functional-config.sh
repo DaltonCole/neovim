@@ -194,10 +194,15 @@ check "cv selects a CoC range (normal and visual)" \
     "if maparg('cv', 'n') !~# 'coc-range-select' || maparg('cv', 'x') !~# 'coc-range-select' | cquit 1 | endif"
 check "gi falls back when a language server can't find implementations" \
     "if maparg('gi', 'n') !~# 'GoToImplementation' || !exists('*GoToImplementation') | cquit 1 | endif"
-check "cy searches symbols in Telescope" \
-    "if maparg('cy', 'n') !~# 'Telescope coc workspace_symbols' | cquit 1 | endif"
-check "gr lists references in Telescope" \
-    "if maparg('gr', 'n') !~# 'Telescope coc references' | cquit 1 | endif"
+check "cy goes through SearchSymbols()" \
+    "if maparg('cy', 'n') !~# 'SearchSymbols' || !exists('*SearchSymbols') | cquit 1 | endif"
+check "gr goes through GoToReferences()" \
+    "if maparg('gr', 'n') !~# 'GoToReferences' || !exists('*GoToReferences') | cquit 1 | endif"
+check "gd and gy fall back to searching by text" \
+    "if maparg('gd', 'n') !~# 'GoTo(' || maparg('gy', 'n') !~# 'GoTo(' | cquit 1 | endif"
+check "gs and gS use any-jump, and any-jump leaves Emmet's ,j alone" \
+    "if maparg('gs', 'n') !~# 'AnyJump' || maparg('gs', 'x') !~# 'AnyJumpVisual' || maparg('gS', 'n') !~# 'AnyJumpLastResults' | cquit 1 | endif" \
+    "if maparg(',j', 'n') !~# 'emmet' | cquit 1 | endif"
 check "Telescope has loaded the CoC pickers" \
     "if !luaeval('require(''telescope'').extensions.coc ~= nil') | cquit 1 | endif"
 check "<C-d> and <C-u> scroll CoC popups" \
@@ -239,6 +244,8 @@ check "visual-mode keys come first from visual mode" \
     "Cheatsheet visual" "if getline(1) !=# 'WITH TEXT SELECTED' | cquit 1 | endif"
 check "a plugin window's keys come first inside it" \
     "setfiletype nerdtree" "Cheatsheet" "if getline(1) !~# 'NERDTREE' | cquit 1 | endif"
+check "any-jump's keys come first inside its window" \
+    "setfiletype any-jump" "Cheatsheet" "if getline(1) !=# 'KEYS INSIDE ANY-JUMP' | cquit 1 | endif"
 check "F1 in Fugitive's status window opens the cheatsheet, not its help" \
     "if !exists('#User#FugitiveIndex') | cquit 1 | endif"
 check "every other section still follows, and tags aren't shown" \

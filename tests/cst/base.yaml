@@ -26,7 +26,7 @@ commandTests:
     command: "which"
     args: ["clang-format"]
     exitCode: 0
-  - name: "ripgrep present (CtrlSF and Telescope's file search need it)"
+  - name: "ripgrep present (CtrlSF, any-jump and Telescope's file search need it)"
     command: "which"
     args: ["rg"]
     exitCode: 0

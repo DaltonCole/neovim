@@ -64,6 +64,9 @@ Plug 'nvim-lua/plenary.nvim'
 Plug 'nvim-telescope/telescope.nvim', { 'tag': 'v0.1.9' }
 Plug 'fannheyward/telescope-coc.nvim'  " gr, gi and cy with a code preview
 
+" --- Definitions without a language server ---
+Plug 'pechorin/any-jump.vim'     " gs  Find a definition by searching text
+
 " --- Key hints ---
 Plug 'folke/which-key.nvim'      " Pause after g , or c to see what comes next
 
@@ -302,6 +305,15 @@ nnoremap <leader>tf <cmd>Telescope find_files<cr>
 nnoremap <leader>tb <cmd>Telescope buffers<cr>
 nnoremap <leader>th <cmd>Telescope help_tags<cr>
 
+" --- Any-jump (find definitions by searching text) ---
+" Its default ,j is Emmet's split or join tag.
+let g:any_jump_disable_default_keybindings = 1
+" Gutentags writes a tags file into each project. It isn't a useful result.
+let g:any_jump_ignored_files = ['*.tmp', '*.temp', 'tags']
+nnoremap <silent> gs :AnyJump<CR>
+xnoremap <silent> gs :AnyJumpVisual<CR>
+nnoremap <silent> gS :AnyJumpLastResults<CR>
+
 " --- Gutentags ---
 if !executable('ctags')
     let g:gutentags_dont_load = 1
@@ -361,10 +373,10 @@ nmap <silent> [g <Plug>(coc-diagnostic-prev)
 nmap <silent> ]g <Plug>(coc-diagnostic-next)
 
 " GoTo navigation
-nmap <silent> gd <Plug>(coc-definition)
-nmap <silent> gy <Plug>(coc-type-definition)
+nnoremap <silent> gd :<C-u>call <SID>GoTo('definition', 'jumpDefinition')<CR>
+nnoremap <silent> gy :<C-u>call <SID>GoTo('typeDefinition', 'jumpTypeDefinition')<CR>
 nnoremap <silent> gi :<C-u>call GoToImplementation()<CR>
-nnoremap <silent> gr <cmd>Telescope coc references<cr>
+nnoremap <silent> gr :<C-u>call GoToReferences()<CR>
 
 " Neovim's own language-server keys do nothing here because CoC is the client,
 " and they make gr wait to see whether another key follows.
@@ -376,13 +388,51 @@ silent! nunmap grn
 silent! nunmap grt
 silent! nunmap gO
 
-" Not every language server can find implementations. Rather than an error,
-" gi then searches every symbol with the name under the cursor.
-function! GoToImplementation() abort
-  if CocAction('hasProvider', 'implementation')
-    Telescope coc implementations
+" True when a language server can answer this request in the current file.
+function! s:CocCan(provider) abort
+  return get(g:, 'coc_service_initialized', 0) && CocAction('hasProvider', a:provider)
+endfunction
+
+" With no language server, or none that finds anything, search by text.
+function! s:GoTo(provider, action) abort
+  if s:CocCan(a:provider)
+    call CocActionAsync(a:action, function('s:SearchIfNotFound', [expand('<cword>')]))
   else
+    AnyJump
+  endif
+endfunction
+
+function! s:SearchIfNotFound(word, error, found) abort
+  if !empty(a:word) && (!empty(a:error) || !a:found)
+    execute 'AnyJumpArg ' . a:word
+  endif
+endfunction
+
+function! GoToReferences() abort
+  if s:CocCan('reference')
+    Telescope coc references
+  else
+    AnyJump
+  endif
+endfunction
+
+" Not every language server can find implementations. gi then lists every
+" symbol with the name under the cursor, or searches by text if it can't.
+function! GoToImplementation() abort
+  if s:CocCan('implementation')
+    Telescope coc implementations
+  elseif s:CocCan('workspaceSymbols')
     execute 'CocList -I --input=' . expand('<cword>') . ' symbols'
+  else
+    AnyJump
+  endif
+endfunction
+
+function! SearchSymbols() abort
+  if s:CocCan('workspaceSymbols')
+    Telescope coc workspace_symbols
+  else
+    echo 'No language server for this file. Use gs to search for the word under the cursor.'
   endif
 endfunction
 
@@ -463,7 +513,7 @@ nnoremap <silent><nowait> ce :<C-u>CocList extensions<cr>
 nnoremap <silent><nowait> cc :<C-u>CocList commands<cr>
 nnoremap <silent><nowait> co :<C-u>CocList outline<cr>
 nnoremap <silent><nowait> <leader>tt :<C-u>CocList outline<cr>
-nnoremap <silent><nowait> cy <cmd>Telescope coc workspace_symbols<cr>
+nnoremap <silent><nowait> cy :<C-u>call SearchSymbols()<CR>
 nnoremap <silent><nowait> cj :<C-u>CocNext<CR>
 nnoremap <silent><nowait> ck :<C-u>CocPrev<CR>
 nnoremap <silent><nowait> cp :<C-u>CocListResume<CR>
@@ -580,7 +630,8 @@ inoremap `  ``<Esc>ha
 " Format: titles start in column 1 in capitals; entries are two spaces, the
 " keys, at least two spaces, then the description. Keep lines under 76 columns.
 " A title can end with @tags saying where its keys apply: @normal, @insert,
-" @visual, @nerdtree, @telescope, @ctrlsf, @fugitive, @list, @diff, @quickfix.
+" @visual, @nerdtree, @telescope, @anyjump, @ctrlsf, @fugitive, @list, @diff,
+" @quickfix.
 " A title with no tags counts as @normal.
 
 let s:cheatsheet =<< END
@@ -594,6 +645,10 @@ FIND A FUNCTION
   Ctrl-o / Ctrl-i   jump back / forward again
 
 IF GD OR GI CAN'T FIND IT
+  (automatic)       with no language server, gd gi gr gy search by text
+  gs                search by text yourself (any-jump), select text first
+                    to search for exactly that
+  gS                reopen the last text search
   gd stops at .h    C++ needs compile_commands.json, see the recipe below
   Ctrl-]            jump with ctags, needs no language server
   :CocRestart       restart the language servers
@@ -665,6 +720,18 @@ KEYS INSIDE TELESCOPE  @telescope
   Ctrl-q / Alt-q    send all / marked results to the quickfix list
   Ctrl-c            close
   Ctrl-/            list every key
+
+KEYS INSIDE ANY-JUMP  @anyjump
+  Enter / o         open the result
+  s / v             open in a horizontal / vertical split
+  t                 open in a new tab
+  p / Tab           preview the code around the result
+  r                 show or hide references
+  a / A             load more / every result
+  T                 group the results by file
+  L                 switch the list style
+  b                 back to the first result
+  q / Esc           close
 
 KEYS INSIDE SEARCH RESULTS (CTRLSF)  @ctrlsf
   Ctrl-h            move into the results (they open on the left)
@@ -967,10 +1034,11 @@ let s:cheatsheet_labels = {
       \ 'normal': 'Normal mode', 'insert': 'Insert mode', 'visual': 'Visual mode',
       \ 'nerdtree': 'File tree', 'telescope': 'Telescope', 'ctrlsf': 'Search results',
       \ 'fugitive': 'Git status', 'list': 'CoC list', 'diff': 'Diff', 'quickfix': 'Quickfix',
+      \ 'anyjump': 'Any-jump',
       \ }
 let s:cheatsheet_filetypes = {
       \ 'nerdtree': 'nerdtree', 'TelescopePrompt': 'telescope', 'ctrlsf': 'ctrlsf',
-      \ 'fugitive': 'fugitive',
+      \ 'fugitive': 'fugitive', 'any-jump': 'anyjump',
       \ }
 
 function! s:CheatsheetContext(mode) abort
@@ -1116,6 +1184,8 @@ pcall(function()
     { 'gi', desc = 'Go to implementation' },
     { 'gr', desc = 'List references' },
     { 'gy', desc = 'Go to type definition' },
+    { 'gs', desc = 'Search by text (any-jump)' },
+    { 'gS', desc = 'Reopen the last text search' },
     { 'cy', desc = 'Search all functions and types' },
     { 'co', desc = "List this file's functions" },
     { ',tt', desc = "List this file's functions" },
@@ -1214,6 +1284,7 @@ pcall(function()
       { 'cf', desc = 'Format' },
       { 'cv', desc = 'Grow the selection' },
       { 'gS', desc = 'Surround on new lines' },
+      { 'gs', desc = 'Search for the selection (any-jump)' },
       { '$1', desc = 'Wrap in ( )' },
       { '$2', desc = 'Wrap in [ ]' },
       { '$3', desc = 'Wrap in { }' },
