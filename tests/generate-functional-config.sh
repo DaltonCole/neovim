@@ -113,20 +113,14 @@ for cmd in CocList CocNext CocPrev CocListResume; do
 done
 
 echo
-echo "  # --- MRU / BufExplorer: trigger for real and check the resulting filetype."
-echo "  # (Both take over the CURRENT window rather than splitting, so a window-count"
-echo "  # delta doesn't detect them; MRU also needs a real, already-existing file"
-echo "  # opened first - it no-ops with 'MRU file list is empty' otherwise.)"
-check "MRU (<leader>f) opens the MRU list" \
-    "edit /etc/hostname" "normal ,f" "if &filetype !=# 'mru' | cquit 1 | endif"
-check "BufExplorer (<leader>o) opens the buffer list" \
-    "normal ,o" "if &filetype !=# 'bufexplorer' | cquit 1 | endif"
-
-echo
-echo "  # --- CtrlP: config-var-driven (g:ctrlp_map), not a literal map line -"
-echo "  # its own startup code turns g:ctrlp_map into a real mapping."
-check "CtrlP (<C-f>) mapped and :CtrlP command available" \
-    "if empty(maparg('<C-f>', 'n')) || !exists(':CtrlP') | cquit 1 | endif"
+echo "  # --- Telescope is the one fuzzy finder. Its picker UI isn't reliable"
+echo "  # headless, so check that each key points at the right picker."
+check "<C-f> opens Telescope's file finder" \
+    "if maparg('<C-f>', 'n') !~# 'Telescope find_files' | cquit 1 | endif"
+check "<leader>f opens Telescope's recent files" \
+    "if maparg('<leader>f', 'n') !~# 'Telescope oldfiles' | cquit 1 | endif"
+check "<leader>o opens Telescope's buffer list" \
+    "if maparg('<leader>o', 'n') !~# 'Telescope buffers' | cquit 1 | endif"
 
 echo
 echo "  # --- NERDTree: trigger the primary toggle and check the well-known"
@@ -147,13 +141,9 @@ check "Telescope provides :Telescope command" \
     "if !exists(':Telescope') | cquit 1 | endif"
 
 echo
-echo "  # --- Tagbar: needs something for ctags to find; write a tiny fixture"
-echo "  # file first, then toggle and check a window opened."
-check "Tagbar (<leader>tt) opens a window" \
-    "edit /tmp/_tagbar_fixture.py" \
-    "call setline(1, ['def foo():', '    pass'])" \
-    "write" \
-    "let g:_w = winnr('\$')" "normal ,tt" "if winnr('\$') <= g:_w | cquit 1 | endif"
+echo "  # --- <leader>tt was Tagbar and now opens CoC's outline, the same list as co."
+check "<leader>tt opens CoC's outline" \
+    "if maparg('<leader>tt', 'n') !~# 'CocList outline' | cquit 1 | endif"
 
 echo
 echo "  # --- GitGutter: toggle and check the actual flag it controls flips"

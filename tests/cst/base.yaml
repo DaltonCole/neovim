@@ -22,7 +22,7 @@ commandTests:
     command: "which"
     args: ["clang-format"]
     exitCode: 0
-  - name: "ripgrep present (CtrlSF and Telescope's live grep need it)"
+  - name: "ripgrep present (CtrlSF and Telescope's file search need it)"
     command: "which"
     args: ["rg"]
     exitCode: 0
@@ -67,21 +67,21 @@ commandTests:
     command: "nvim"
     args: ["--headless", "-c", "if !has('python3') | cquit 1 | endif", "-c", "q"]
     exitCode: 0
-  # mru/undodir are named-volume mount points, which take the image
+  # shada/undodir are named-volume mount points, which take the image
   # directory's ownership when first created; ~/.config/nvim holds the
   # bind-mounted config and the zg spellfile; ~/.config/coc holds the
   # language servers coc-clangd/coc-rust-analyzer download on first use.
   - name: "user owns and can write its nvim/coc directories"
     command: "bash"
-    args: ["-c", "for d in ~/.config/nvim ~/.config/nvim/mru ~/.config/nvim/undodir ~/.config/coc ~/.nvim; do test -O $d -a -w $d || { echo \"not owned/writable: $d\"; exit 1; }; done"]
+    args: ["-c", "for d in ~/.config/nvim ~/.local/state/nvim/shada ~/.config/nvim/undodir ~/.config/coc ~/.nvim; do test -O $d -a -w $d || { echo \"not owned/writable: $d\"; exit 1; }; done"]
     exitCode: 0
 
 fileExistenceTests:
   - name: "init.vim removed from image (bind mount takes over at runtime)"
     path: "/home/docker/.config/nvim/init.vim"
     shouldExist: false
-  - name: "mru dir scaffolded"
-    path: "/home/docker/.config/nvim/mru"
+  - name: "shada dir scaffolded"
+    path: "/home/docker/.local/state/nvim/shada"
     shouldExist: true
   - name: "undodir scaffolded"
     path: "/home/docker/.config/nvim/undodir"

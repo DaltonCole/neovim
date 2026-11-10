@@ -7,7 +7,7 @@
 "   1. Plugins          plug#begin ... plug#end
 "   2. Basics           encoding, indentation, search, undo, saving
 "   3. Appearance       colorscheme, UI options, statusline
-"   4. Finding things   NERDTree, CtrlP, MRU, BufExplorer, CtrlSF, Telescope, tags
+"   4. Finding things   NERDTree, Telescope, CtrlSF, tags
 "   5. Code             CoC, formatters, languages
 "   6. Windows & Git    splits, window movement, Fugitive, GitGutter
 "   7. Editing          surround, pairs, Emmet, spell, align, insert helpers
@@ -30,7 +30,6 @@ Plug 'crucerucalin/peaksea.vim'
 
 " --- Syntax / Highlighting ---
 Plug 'luochen1990/rainbow'               " Colorful parentheses
-Plug 'jackguo380/vim-lsp-cxx-highlight'  " Better C++ highlighting
 
 " --- HTML ---
 " Emmet: ,, to expand  |  html:5,,  div.foo>p#bar>a,,  ul>li*5,,
@@ -41,9 +40,6 @@ Plug 'alvan/vim-closetag'
 " --- Completion (CoC) ---
 " Docs: https://github.com/neoclide/coc.nvim/wiki/Using-coc-extensions
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
-
-" --- Fuzzy finder (used by CtrlP / Telescope) ---
-Plug 'junegunn/fzf'
 
 " --- Rust ---
 Plug 'rust-lang/rust.vim'
@@ -56,9 +52,6 @@ Plug 'chaoren/vim-wordmotion'    " CamelCase and snake_case word motion
 Plug 'chrisbra/vim-diff-enhanced'" Better vim-diff
 
 " --- File Navigation ---
-Plug 'yegappan/mru'              " <leader>f  Most recently used files
-Plug 'jlanzarotta/bufexplorer'   " <leader>o  Files in buffer
-Plug 'ctrlpvim/ctrlp.vim'        " ctrl-f     Open files in cwd
 Plug 'preservim/nerdtree'        " <leader>nn Directory tree
 Plug 'dyng/ctrlsf.vim'           " <C-s>      Search across files
 
@@ -69,7 +62,6 @@ Plug 'nvim-telescope/telescope.nvim', { 'tag': '0.1.6' }
 " --- Tags ---
 " ctags (apt package, see Dockerfile): ctrl-] jump to def, ctrl-t jump back, :ts list tags
 Plug 'ludovicchabant/vim-gutentags'  " Auto create/update ctags
-Plug 'preservim/tagbar'              " <leader>tt  Sidebar tag viewer
 
 " --- Git ---
 Plug 'airblade/vim-gitgutter'   " <leader>gg toggle git change markers
@@ -128,6 +120,8 @@ set magic
 
 " --- History & Undo ---
 set history=1000
+" 400 recent files for Telescope's ,f. The shada file is on a named volume.
+set shada='400,<50,s10,h
 try
     set undodir=~/.config/nvim/undodir
     set undofile
@@ -262,23 +256,6 @@ autocmd User CocStatusChange,CocDiagnosticChange call lightline#update()
 map <space>   /
 map <C-space> ?
 
-" --- MRU (Most Recently Used) ---
-let MRU_File = '~/.config/nvim/mru/vim_mru_files'
-let MRU_Max_Entries = 400
-map <leader>f :MRU<CR>
-
-" --- BufExplorer ---
-let g:bufExplorerDefaultHelp=0
-let g:bufExplorerShowRelativePath=1
-let g:bufExplorerFindActive=1
-let g:bufExplorerSortBy='name'
-map <leader>o :BufExplorer<cr>
-
-" --- CtrlP ---
-let g:ctrlp_map = '<C-f>'
-let g:ctrlp_max_height = 20
-let g:ctrlp_custom_ignore = 'node_modules\|^\.DS_Store\|^\.git\|^\.coffee'
-
 " --- NERDTree ---
 let g:NERDTreeWinPos = "right"
 let NERDTreeShowHidden = 1
@@ -298,8 +275,13 @@ nmap <C-s> <Plug>CtrlSFCwordPath
 xmap <C-s> <Plug>CtrlSFVwordPath
 
 " --- Telescope ---
+" The one fuzzy finder. pcall because the image build loads this file before
+" the plugin is installed.
+lua pcall(function() require('telescope').setup({ defaults = { file_ignore_patterns = { 'node_modules/' } } }) end)
+nnoremap <C-f>      <cmd>Telescope find_files<cr>
+nnoremap <leader>f  <cmd>Telescope oldfiles<cr>
+nnoremap <leader>o  <cmd>Telescope buffers<cr>
 nnoremap <leader>tf <cmd>Telescope find_files<cr>
-nnoremap <leader>tg <cmd>Telescope live_grep<cr>
 nnoremap <leader>tb <cmd>Telescope buffers<cr>
 nnoremap <leader>th <cmd>Telescope help_tags<cr>
 
@@ -307,9 +289,6 @@ nnoremap <leader>th <cmd>Telescope help_tags<cr>
 if !executable('ctags')
     let g:gutentags_dont_load = 1
 endif
-
-" --- Tagbar ---
-map <leader>tt :TagbarToggle<CR>
 
 " --- Search for / replace the visual selection ---
 vnoremap <silent> <leader>r :call VisualSelection('replace', '')<CR>
@@ -440,6 +419,7 @@ nnoremap <silent><nowait> cd :<C-u>CocList diagnostics<cr>
 nnoremap <silent><nowait> ce :<C-u>CocList extensions<cr>
 nnoremap <silent><nowait> cc :<C-u>CocList commands<cr>
 nnoremap <silent><nowait> co :<C-u>CocList outline<cr>
+nnoremap <silent><nowait> <leader>tt :<C-u>CocList outline<cr>
 nnoremap <silent><nowait> cy :<C-u>CocList -I symbols<cr>
 nnoremap <silent><nowait> cj :<C-u>CocNext<CR>
 nnoremap <silent><nowait> ck :<C-u>CocPrev<CR>
@@ -558,19 +538,15 @@ inoremap `  ``<Esc>ha
 
 let s:cheatsheet =<< END
 FIND A FILE
-  Ctrl-f            fuzzy find in the current directory (CtrlP)
-  ,f                recently opened files (MRU)
-  ,tf               fuzzy find with preview (Telescope)
+  Ctrl-f / ,tf      fuzzy find in the current directory
+  ,f                recently opened files
   ,nn               toggle the file tree (NERDTree)
   ,nf               show the current file in the tree
   ,ng               open the tree at the Git root
   ,nb               open the tree at a bookmark
 
 SWITCH BETWEEN OPEN FILES
-  ,o                list open buffers (BufExplorer)
-  ,tb               fuzzy find open buffers (Telescope)
-  ,bt               toggle the buffer list
-  ,bs / ,bv         buffer list in a horizontal / vertical split
+  ,o / ,tb          fuzzy find open buffers
   ]b / [b           next / previous buffer
   Ctrl-^            back to the previous file
 
@@ -588,14 +564,12 @@ SEARCH ACROSS THE PROJECT
   Ctrl-s (visual)   search for the selected text, Enter to run
   :CtrlSF text      search for any text
   :CtrlSFToggle     show or hide the last results
-  ,tg               live search as you type (Telescope)
-  ,th               search Vim's help topics (Telescope)
+  ,th               search Vim's help topics
 
 JUMP BY TAG (CTAGS)
   Ctrl-]            jump to the definition under the cursor
   Ctrl-t            jump back
   :ts name          list every tag with that name
-  ,tt               toggle the outline sidebar (Tagbar)
 
 KEYS INSIDE THE FILE TREE (NERDTREE)
   Enter / o         open the file, or open and close the folder
@@ -610,18 +584,6 @@ KEYS INSIDE THE FILE TREE (NERDTREE)
   q                 close the tree
   ?                 list every key
 
-KEYS INSIDE CTRLP
-  Ctrl-j / Ctrl-k   move down / up the list
-  Enter             open
-  Ctrl-x / Ctrl-v   open in a horizontal / vertical split
-  Ctrl-t            open in a new tab
-  Ctrl-f / Ctrl-b   switch between files, buffers and recent files
-  Ctrl-d            match file names only, not full paths
-  Ctrl-r            use a regular expression
-  Ctrl-z / Ctrl-o   mark several files / open the marked files
-  F5                rescan the directory
-  Esc               close
-
 KEYS INSIDE TELESCOPE
   Ctrl-n / Ctrl-p   move down / up the list
   Enter             open
@@ -632,23 +594,6 @@ KEYS INSIDE TELESCOPE
   Ctrl-q / Alt-q    send all / marked results to the quickfix list
   Ctrl-c            close
   Ctrl-/            list every key
-
-KEYS INSIDE THE BUFFER LIST (BUFEXPLORER)
-  Enter / o         open
-  f / v             open in a split below / to the right
-  t                 open in a new tab
-  d                 close the buffer
-  s / r             change the sort / reverse the sort
-  q                 close the list
-  F1                show help
-
-KEYS INSIDE THE RECENT FILES LIST (MRU)
-  Enter             open
-  o / O             open in a horizontal / vertical split
-  t / v             open in a tab / read-only
-  p                 open in the preview window
-  u / d             refresh the list / remove the entry
-  q                 close the list
 
 KEYS INSIDE SEARCH RESULTS (CTRLSF)
   Ctrl-h            move into the results (they open on the left)
@@ -661,13 +606,6 @@ KEYS INSIDE SEARCH RESULTS (CTRLSF)
   (edit) then :w    change text in the results and save it to the files
   q                 close the results
 
-KEYS INSIDE THE OUTLINE (TAGBAR)
-  Enter / p         jump to the tag / jump but stay in the sidebar
-  o                 open or close the fold
-  s                 sort by name or by file order
-  q                 close the sidebar
-  ?                 show help
-
 UNDERSTAND CODE (COC)
   gd                go to the definition
   gy                go to the type definition
@@ -676,7 +614,7 @@ UNDERSTAND CODE (COC)
   H                 show docs for the word under the cursor
   Ctrl-d / Ctrl-u   scroll an open docs popup (otherwise half a page)
   Ctrl-j / Ctrl-k   scroll an open docs popup in insert mode
-  co                outline of this file
+  co / ,tt          outline of this file
   cy                project-wide symbol search (needs a language server)
 
 FIX ERRORS AND WARNINGS (COC)
@@ -835,8 +773,10 @@ RECIPE: RENAME A SYMBOL EVERYWHERE
   :wa               save every file it changed
 
 RECIPE: REPLACE TEXT ACROSS THE PROJECT
-  ,tg               type the text, then Ctrl-q to fill the quickfix list
-  :cdo s/old/new/g | update  replace it in every result and save
+  :CtrlSF old       search for the text, then press Enter to run it
+  Ctrl-h            move into the results
+  :%s/old/new/g     replace it in the results
+  :w                save the change to every file, then y to confirm
 
 RECIPE: REPLACE SELECTED TEXT IN THIS FILE
   v then motion     select the text
@@ -883,7 +823,7 @@ VIM COMMANDS YOUR KEYS REPLACED
   C                 change to the end of the line
   ciw               change the word (caw is a code action here)
   ct{char}          change up to a character (cf is format here)
-  PageDown          page down (Ctrl-f is CtrlP here)
+  PageDown          page down (Ctrl-f is file search here)
 
 VIM: MOVING AROUND
   Ctrl-o / Ctrl-i   back / forward through your jumps

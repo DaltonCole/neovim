@@ -60,7 +60,7 @@ RUN nvim --headless +PlugInstall +qall; \
 # The mkdir keeps the runtime stage's COPY of ~/.config/coc working if you
 # comment out the CocInstall line.
 RUN mkdir -p ${HOME}/.config/coc && \
-    nvim --headless +'CocInstall -sync coc-yank coc-html coc-highlight coc-git coc-fzf-preview coc-docker coc-clang-format-style-options coc-yaml coc-tsserver coc-sh coc-rust-analyzer coc-pyright coc-markdownlint coc-json coc-htmlhint coc-css coc-cmake coc-clangd' +qall
+    nvim --headless +'CocInstall -sync coc-yank coc-html coc-highlight coc-git coc-docker coc-clang-format-style-options coc-yaml coc-tsserver coc-sh coc-rust-analyzer coc-pyright coc-markdownlint coc-json coc-htmlhint coc-css coc-cmake coc-clangd' +qall
 
 # Drop what nothing reads at runtime before the runtime stage copies it:
 #  - each plugin's .git (vim-plug's clone, ~78 MB). Plugins are baked in at
@@ -85,8 +85,8 @@ FROM docker.io/library/ubuntu:26.04
 #   nodejs                       runs coc.nvim and its extensions
 #   git, less                    fugitive, gitgutter, coc-git, gutentags;
 #                                less is git's default pager
-#   exuberant-ctags              gutentags, tagbar
-#   ripgrep                      CtrlSF and Telescope's live grep
+#   exuberant-ctags              gutentags
+#   ripgrep                      CtrlSF and Telescope's file search
 #   clang-format                 vim-clang-format
 #   libc6-dev, libstdc++-15-dev  C and C++ standard headers. The clangd that
 #                                coc-clangd downloads needs them to resolve
@@ -144,11 +144,12 @@ RUN groupadd -g $GID -o $UNAME && \
 USER $UNAME
 ENV HOME=/home/${UNAME}
 
-# Created as the user so the user owns them. mru and undodir are mount
-# points for named volumes, which take this ownership when first created.
+# Created as the user so the user owns them. undodir and shada (recent files
+# for Telescope, plus registers and marks) are mount points for named volumes,
+# which take this ownership when first created.
 # init.vim and coc-settings.json get bind-mounted into ~/.config/nvim at
 # runtime, and nvim writes the spellfile (zg) there.
-RUN mkdir -p ${HOME}/.config/nvim/mru ${HOME}/.config/nvim/undodir \
+RUN mkdir -p ${HOME}/.config/nvim/undodir ${HOME}/.local/state/nvim/shada \
              ${HOME}/.config/coc ${HOME}/.local/share/nvim/site ${HOME}/.nvim
 
 # Plugins, CoC extensions and vim-plug from the builder: only these three

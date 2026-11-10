@@ -26,7 +26,7 @@ services:
     security_opt: [no-new-privileges:true]
     volumes:
       - undodir:/home/docker/.config/nvim/undodir
-      - mrudir:/home/docker/.config/nvim/mru
+      - shada:/home/docker/.local/state/nvim/shada # Recent files (,f), registers, marks
       - /:/system # Mount the whole local system into the container
       - ./nvim/init.vim:/home/docker/.config/nvim/init.vim
       - ./nvim/coc-settings.json:/home/docker/.config/nvim/coc-settings.json
@@ -37,4 +37,4 @@ services:
 
 volumes:
   undodir:
-  mrudir:
+  shada:
