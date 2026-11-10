@@ -194,8 +194,12 @@ check "cv selects a CoC range (normal and visual)" \
     "if maparg('cv', 'n') !~# 'coc-range-select' || maparg('cv', 'x') !~# 'coc-range-select' | cquit 1 | endif"
 check "gi falls back when a language server can't find implementations" \
     "if maparg('gi', 'n') !~# 'GoToImplementation' || !exists('*GoToImplementation') | cquit 1 | endif"
-check "cy opens CoC's symbol list" \
-    "if maparg('cy', 'n') !~# 'CocList -I symbols' | cquit 1 | endif"
+check "cy searches symbols in Telescope" \
+    "if maparg('cy', 'n') !~# 'Telescope coc workspace_symbols' | cquit 1 | endif"
+check "gr lists references in Telescope" \
+    "if maparg('gr', 'n') !~# 'Telescope coc references' | cquit 1 | endif"
+check "Telescope has loaded the CoC pickers" \
+    "if !luaeval('require(''telescope'').extensions.coc ~= nil') | cquit 1 | endif"
 check "<C-d> and <C-u> scroll CoC popups" \
     "if maparg('<C-d>', 'n') !~# 'coc#float#scroll' || maparg('<C-u>', 'n') !~# 'coc#float#scroll' | cquit 1 | endif"
 check "Tab and Shift-Tab cycle CoC's menu (pumvisible() can't see it)" \

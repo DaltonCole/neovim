@@ -59,7 +59,10 @@ Plug 'dyng/ctrlsf.vim'           " <C-s>      Search across files
 
 " --- Telescope ---
 Plug 'nvim-lua/plenary.nvim'
-Plug 'nvim-telescope/telescope.nvim', { 'tag': '0.1.6' }
+" 0.1.6 warns about a function Neovim 0.11 deprecated, which interrupts with a
+" Press ENTER prompt.
+Plug 'nvim-telescope/telescope.nvim', { 'tag': 'v0.1.9' }
+Plug 'fannheyward/telescope-coc.nvim'  " gr, gi and cy with a code preview
 
 " --- Key hints ---
 Plug 'folke/which-key.nvim'      " Pause after g , or c to see what comes next
@@ -282,7 +285,16 @@ xmap <C-s> <Plug>CtrlSFVwordPath
 " --- Telescope ---
 " The one fuzzy finder. pcall because the image build loads this file before
 " the plugin is installed.
-lua pcall(function() require('telescope').setup({ defaults = { file_ignore_patterns = { 'node_modules/' } } }) end)
+lua << EOF
+pcall(function()
+  local telescope = require('telescope')
+  telescope.setup({
+    defaults = { file_ignore_patterns = { 'node_modules/' } },
+    extensions = { coc = { push_cursor_on_edit = true } },
+  })
+  telescope.load_extension('coc')
+end)
+EOF
 nnoremap <C-f>      <cmd>Telescope find_files<cr>
 nnoremap <leader>f  <cmd>Telescope oldfiles<cr>
 nnoremap <leader>o  <cmd>Telescope buffers<cr>
@@ -352,7 +364,7 @@ nmap <silent> ]g <Plug>(coc-diagnostic-next)
 nmap <silent> gd <Plug>(coc-definition)
 nmap <silent> gy <Plug>(coc-type-definition)
 nnoremap <silent> gi :<C-u>call GoToImplementation()<CR>
-nmap <silent> gr <Plug>(coc-references)
+nnoremap <silent> gr <cmd>Telescope coc references<cr>
 
 " Neovim's own language-server keys do nothing here because CoC is the client,
 " and they make gr wait to see whether another key follows.
@@ -368,7 +380,7 @@ silent! nunmap gO
 " gi then searches every symbol with the name under the cursor.
 function! GoToImplementation() abort
   if CocAction('hasProvider', 'implementation')
-    call CocActionAsync('jumpImplementation')
+    Telescope coc implementations
   else
     execute 'CocList -I --input=' . expand('<cword>') . ' symbols'
   endif
@@ -451,7 +463,7 @@ nnoremap <silent><nowait> ce :<C-u>CocList extensions<cr>
 nnoremap <silent><nowait> cc :<C-u>CocList commands<cr>
 nnoremap <silent><nowait> co :<C-u>CocList outline<cr>
 nnoremap <silent><nowait> <leader>tt :<C-u>CocList outline<cr>
-nnoremap <silent><nowait> cy :<C-u>CocList -I symbols<cr>
+nnoremap <silent><nowait> cy <cmd>Telescope coc workspace_symbols<cr>
 nnoremap <silent><nowait> cj :<C-u>CocNext<CR>
 nnoremap <silent><nowait> ck :<C-u>CocPrev<CR>
 nnoremap <silent><nowait> cp :<C-u>CocListResume<CR>
@@ -574,10 +586,10 @@ inoremap `  ``<Esc>ha
 let s:cheatsheet =<< END
 FIND A FUNCTION
   gd                jump to where it's defined
-  gi                jump to its implementations and overrides
-  gr                list every place it's used
+  gi                jump to its override, or preview them if there are several
+  gr                list every place it's used, with a preview of the code
   gy                jump to the definition of its type
-  cy                search every function and type by name
+  cy                search every function and type by name, with a preview
   co / ,tt          list this file's functions, type to filter
   Ctrl-o / Ctrl-i   jump back / forward again
 
