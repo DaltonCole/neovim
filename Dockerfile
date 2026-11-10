@@ -60,7 +60,7 @@ RUN nvim --headless +PlugInstall +qall; \
 # The mkdir keeps the runtime stage's COPY of ~/.config/coc working if you
 # comment out the CocInstall line.
 RUN mkdir -p ${HOME}/.config/coc && \
-    nvim --headless +'CocInstall -sync coc-yank coc-html coc-highlight coc-git coc-docker coc-clang-format-style-options coc-yaml coc-tsserver coc-sh coc-rust-analyzer coc-pyright coc-markdownlint coc-json coc-htmlhint coc-css coc-cmake coc-clangd' +qall
+    nvim --headless +'CocInstall -sync coc-yank coc-html coc-highlight coc-git coc-docker coc-clang-format-style-options coc-yaml coc-tsserver coc-sh coc-rust-analyzer coc-basedpyright coc-markdownlint coc-json coc-htmlhint coc-css coc-cmake coc-clangd' +qall
 
 # Drop what nothing reads at runtime before the runtime stage copies it:
 #  - each plugin's .git (vim-plug's clone, ~78 MB). Plugins are baked in at

@@ -1,5 +1,7 @@
 {
     "suggest.noselect": true,
+    "basedpyright.analysis.typeCheckingMode": "standard",
+    "basedpyright.analysis.stubPath": "",
     "rust-analyzer.updates.checkOnStartup": false,
     "rust-analyzer.workspace.symbol.search.kind": "all_symbols"
 }

@@ -180,7 +180,7 @@ endif
 " --- Colorscheme (must come after plug#end) ---
 set background=dark
 
-" CoC derives inlay hints (e.g. pyright's inferred types) from SignColumn's
+" CoC derives inlay hints (e.g. basedpyright's inferred types) from SignColumn's
 " background, which peaksea makes green. CoC only sets this group if it's
 " undefined, so define it here. Must come before :colorscheme to take effect.
 augroup inlay_hint_colors
@@ -364,7 +364,7 @@ silent! nunmap grn
 silent! nunmap grt
 silent! nunmap gO
 
-" Python's language server can't find implementations. Rather than an error,
+" Not every language server can find implementations. Rather than an error,
 " gi then searches every symbol with the name under the cursor.
 function! GoToImplementation() abort
   if CocAction('hasProvider', 'implementation')
@@ -436,8 +436,14 @@ xmap <silent> cv <Plug>(coc-range-select)
 " Commands
 command! -nargs=0 Format :call CocActionAsync('format')
 command! -nargs=? Fold   :call CocAction('fold', <f-args>)
-command! -nargs=0 OR     :call CocActionAsync('runCommand', 'editor.action.organizeImport')
+command! -nargs=0 OR     :call OrganizeImports()
 autocmd BufWritePre *.cpp,*.py,*.rs,*.h,*.hpp :OR
+
+" basedpyright sorts imports through its own command, not a CoC code action.
+function! OrganizeImports() abort
+  let command = &filetype ==# 'python' ? 'basedpyright.organizeimports' : 'editor.action.organizeImport'
+  call CocActionAsync('runCommand', command)
+endfunction
 
 " --- CoC: lists ---
 nnoremap <silent><nowait> cd :<C-u>CocList diagnostics<cr>
@@ -576,7 +582,6 @@ FIND A FUNCTION
   Ctrl-o / Ctrl-i   jump back / forward again
 
 IF GD OR GI CAN'T FIND IT
-  gi in Python      lists every symbol with that name, choose one
   gd stops at .h    C++ needs compile_commands.json, see the recipe below
   Ctrl-]            jump with ctags, needs no language server
   :CocRestart       restart the language servers

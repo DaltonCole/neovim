@@ -52,7 +52,7 @@ Open work lives in GitHub issues (`gh issue list`). There is no TODO file.
 
 ## Plugin Stack (init.vim)
 
-- **Completion/LSP**: CoC (`coc.nvim`) with extensions for C/C++ (`coc-clangd`), Python (`coc-pyright`), Rust (`coc-rust-analyzer`), TypeScript, YAML, JSON, etc.
+- **Completion/LSP**: CoC (`coc.nvim`) with extensions for C/C++ (`coc-clangd`), Python (`coc-basedpyright`, whose `typeCheckingMode` is set to `standard` to match pyright's default), Rust (`coc-rust-analyzer`), TypeScript, YAML, JSON, etc.
 - **File navigation**: NERDTree, Telescope (files, recent files, buffers), CtrlSF (project search).
 - **Tags**: `vim-gutentags` (auto ctags). The file outline comes from CoC.
 - **Key hints**: which-key lists what can follow when you pause after `g`, `,`, `c` and other prefixes. Its labels are in section 9 of `init.vim`.

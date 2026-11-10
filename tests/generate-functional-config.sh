@@ -255,5 +255,8 @@ check "which-key also watches c, where CoC's keys are" \
     "if luaeval('#vim.tbl_filter(function(m) return m.lhs == ''c'' end, require(''which-key.config'').triggers.mappings)') == 0 | cquit 1 | endif"
 check "Enter runs ,s and ,n from the popup" \
     "if empty(maparg(',s<CR>', 'n')) || empty(maparg(',s<CR>', 'x')) || empty(maparg(',n<CR>', 'n')) | cquit 1 | endif"
+check ":OR uses basedpyright's own command in Python" \
+    "setfiletype python" \
+    "if !exists(':OR') || !exists('*OrganizeImports') | cquit 1 | endif"
 check "Neovim's unused language-server keys don't delay gr" \
     "for k in ['grr', 'gra', 'gri', 'grn', 'grt', 'gO'] | if !empty(maparg(k, 'n')) | cquit 1 | endif | endfor"
