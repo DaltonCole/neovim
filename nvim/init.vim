@@ -108,6 +108,15 @@ let mapleader = ","
 
 " --- Colorscheme (must come after plug#end) ---
 set background=dark
+
+" CoC derives inlay hints (e.g. pyright's inferred types) from SignColumn's
+" background, which peaksea makes green. CoC only sets this group if it's
+" undefined, so define it here. Must come before :colorscheme to take effect.
+augroup inlay_hint_colors
+  autocmd!
+  autocmd ColorScheme * highlight CocInlayHint ctermfg=246 ctermbg=NONE guifg=#949494 guibg=NONE
+augroup end
+
 colorscheme peaksea
 
 " --- Rainbow Parentheses ---
